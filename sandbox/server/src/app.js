@@ -9,10 +9,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 
 app.get("/api/sandbox/health", (req, res) => {
-    console.log("Health route hit");
-
     res.status(200).json({
-        message: "OK",
+        message: "OK Chachu",
         status: 200,
         timestamp: new Date().toISOString()
     });
