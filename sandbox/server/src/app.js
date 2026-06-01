@@ -20,6 +20,11 @@ app.get("/api/ash",(req,res)=>{
     res.status(200).json({
         message:"yeeahh",
         status:200,
+        timestamp:new Date().toISOString(),
+        data:{
+            name:"Ash",
+            age:20
+        }
     })
 })
 
