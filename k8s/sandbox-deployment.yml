@@ -18,7 +18,8 @@ spec:
         app: main-sandbox
     spec:
       containers:
-      - image:  sandbox-latest
+      - image:  cohort_2_kuber_latest
+        imagePullPolicy: IfNotPresent
         name:  main-sandbox-container
         resources:
           requests:
