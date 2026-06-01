@@ -16,5 +16,12 @@ app.get("/api/sandbox/health", (req, res) => {
     });
 });
 
+app.get("/api/ash",(req,res)=>{
+    res.status(200).json({
+        message:"yeeahh",
+        status:200,
+    })
+})
+
 
 export default app;
