@@ -12,6 +12,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: main-server-service
+            name: main-sandbox-service
             port:
               number: 80

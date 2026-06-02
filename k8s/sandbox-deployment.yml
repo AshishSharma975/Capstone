@@ -18,7 +18,7 @@ spec:
         app: main-sandbox
     spec:
       containers:
-      - image:  cohort_2_kuber_latest
+      - image:  cohort_2_kuber_latest_2
         imagePullPolicy: IfNotPresent
         name:  main-sandbox-container
         resources:
@@ -42,4 +42,4 @@ spec:
           timeoutSeconds: 10     
         ports:
         - containerPort:  5000
-          name:  main-sandbox-container
+          name:  main-sandbox
