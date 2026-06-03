@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name:  resources-manager
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: resources-manager-role
+rules:
+- apiGroups: [""] 
+  resources: ["pods", "services"]
+  verbs: ["get", "create", "delete", "list", "watch"] 
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: resources-manager-binding
+subjects:
+- kind: ServiceAccount
+  name: resources-manager
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: resources-manager-role
+  apiGroup: rbac.authorization.k8s.io

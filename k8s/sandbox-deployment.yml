@@ -17,6 +17,7 @@ spec:
       labels:
         app: main-sandbox
     spec:
+      serviceAccountName: resources-manager
       containers:
       - image:  cohort_2_kuber_latest_2
         imagePullPolicy: IfNotPresent

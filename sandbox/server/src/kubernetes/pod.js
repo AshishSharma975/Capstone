@@ -1,4 +1,4 @@
-import { k8sCoreV1Api } from "./config";
+import { k8sCoreV1Api } from "./config.js";
 
 
 export async function createPod(sandboxId) {
@@ -13,7 +13,7 @@ export async function createPod(sandboxId) {
         spec: {
             containers: [{
                 name: `sandbox-container-${sandboxId}`,
-                imagePullPolicy: "ifNotPresent",
+                imagePullPolicy: "IfNotPresent",
                 image: "template",
                 ports: [
                     {
