@@ -4,32 +4,39 @@ import cors from "cors";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 const app = express();
+
 app.use(express.json());
-app.use(morgan('combined'));
-app.use(cors({
-    origin:"*",
-    credentials:true,
-}));
+app.use(morgan("combined"));
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
 
-app.use((req,res,next)=>{
-    const host = req.headers.host;
-    const sandboxId = host.split('.')[0];
-
-    const target = `http://sandbox-pod-${sandboxId}`
-    console.log(`routing to ${target}`);
-    return createProxyMiddleware({
-        target: target,
-        changeOrigin: true,
-        ws:true,
-    })(req,res,next)
-});  
-
+// Health routes
 app.get("/api/status/healthz", (req, res) => {
-    res.status(200).json({status:"healthy"});
+  res.status(200).json({ status: "healthy" });
 });
+
 app.get("/api/status/readyz", (req, res) => {
-    res.status(200).json({status:"ready"});
+  res.status(200).json({ status: "ready" });
 });
 
-export default app
+// Proxy routes
+app.use((req, res, next) => {
+  const host = req.headers.host;
+  const sandboxId = host.split(".")[0];
 
+  const target = `http://sandbox-service-${sandboxId}`;
+
+  console.log(`routing to ${target}`);
+
+  return createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    ws: true,
+  })(req, res, next);
+});
+
+export default app;
