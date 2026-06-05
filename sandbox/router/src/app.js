@@ -37,7 +37,6 @@ function getProxy(sandboxId){
     return proxies[sandboxId];
 }
 
-// Proxy routes
 app.use((req, res, next) => {
   const host = req.headers.host;
   const sandboxId = host.split(".")[0];
