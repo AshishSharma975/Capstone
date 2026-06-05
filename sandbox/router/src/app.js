@@ -14,7 +14,7 @@ app.use(
   })
 );
 
-// Health routes
+
 app.get("/api/status/healthz", (req, res) => {
   res.status(200).json({ status: "healthy" });
 });
