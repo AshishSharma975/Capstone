@@ -41,6 +41,7 @@ app.use((req, res, next) => {
   const host = req.headers.host;
   const sandboxId = host.split(".")[0];
 
+  console.log(sandboxId)
   const target = `http://sandbox-service-${sandboxId}`;
 
   console.log(`routing to ${target}`);
