@@ -24,12 +24,11 @@ app.get("/",(req,res)=>{
 
 app.get("/list-files",async(req,res)=>{
 
-    const {sandboxId} = req.query;
-    const files =  await fs.promises.readdir(`${WORKING_DIR}/${sandboxId}`); 
+const elements = await fs.promises.readdir(WORKING_DIR)
 
     return res.status(200).json({
-        message:"files fetched successfully",
-        data:files
+        message:"elements fetched successfully",
+        data:elements
     })
 })
 
