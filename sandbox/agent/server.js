@@ -1,6 +1,6 @@
 import app from "./src/app.js";
 
-const PORT = process.env.PORT || 3002
+const PORT = process.env.PORT || 8080
 
 app.listen(PORT,()=>{
     console.log("Agent is running on port",PORT)
