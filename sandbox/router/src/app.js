@@ -57,8 +57,10 @@ app.use((req, res, next) => {
    }else if (host.split(".")[1]==="preview"){
     return getProxy(sandboxId)(req, res, next);
    }
-  console.log(sandboxId)
-  const target = `http://sandbox-service-${sandboxId}`;
+   return res.status(404).json({
+        message: "Invalid host name",
+        status:404
+   });
 
 });
 
