@@ -21,155 +21,232 @@ app.get("/",(req,res)=>{
 })
 
 
-app.get("/list-files",async(req,res)=>{
+app.get("/list-files", async (req, res) => {
 
-const listFiles = async (dir, baseDir)=>{
-    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-    const files = [];
+    const listFiles = async (dir, baseDir) => {
+        const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+        const files = [];
 
-    for(const entry of entries){
-        const fullPath = path.join(dir, entry.name);
-        const relativePath = path.relative(baseDir, fullPath);
+        for (const entry of entries) {
+            const fullPath = path.join(dir, entry.name);
+            const relativePath = path.relative(baseDir, fullPath);
 
-        // exclude certain directry
-        if(entry.isDirectory() && ['node_modules','git','dist'].includes(entry.name)){
-            continue;
+            // Exclude certain directories
+            if (entry.isDirectory() && [ 'node_modules', '.git', 'dist' ].includes(entry.name)) {
+                continue;
+            }
+
+            if (entry.isDirectory()) {
+                files.push(...await listFiles(fullPath, baseDir));
+            } else {
+                files.push(relativePath);
+            }
         }
 
-        if(entry.isDirectory()){
-            const children = await listFiles(fullPath,baseDir)
-            files.push({
-                name:relativePath,
-                type:"directory",
-                children
-            })
-        }else{
-            files.push({
-                name:relativePath,
-                type:"file"
-            })
+        return files;
+    }
+
+    try {
+        const files = await listFiles(WORKING_DIR, WORKING_DIR);
+        res.status(200).json({
+            message: 'Files listed successfully',
+            files,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: `Error listing files: ${err.message}`,
+            status: 'error',
+        });
+    }
+
+})
+
+
+app.get("/read-files", async (req, res) => {
+
+    const files = req.query.files;
+
+    if (!files) {
+        return res.status(400).json({
+            message: 'No files specified in query parameter',
+            status: 'error',
+        });
+    }
+
+    const fileList = files.split(',');
+
+    const results = await Promise.all(fileList.map(async (file) => {
+        const filePath = path.join(WORKING_DIR, file);
+        try {
+            const content = await fs.promises.readFile(filePath, 'utf-8');
+            return {
+                [ filePath.replace(WORKING_DIR, '') ]: content,
+            }
+        } catch (err) {
+            return {
+                [ filePath.replace(WORKING_DIR, '') ]: `Error reading file: ${err.message}`,
+            }
         }
-    }
+    }));
 
-    return files
-}
+    res.status(200).json({
+        message: 'File contents',
+        files: results,
+    });
 
-    const tree = await listFiles(WORKING_DIR,"/")
-    return res.status(200).json({
-        message:"files listed successfully",
-        data:tree
-    })
 })
 
 
-app.get("/read-files",async(req,res)=>{
-    const files = req.query.files
+app.patch("/update-files", async (req, res) => {
+    try {
+        console.log("REQ BODY =", JSON.stringify(req.body, null, 2));
 
-    if(!files){
-        return res.status(400).json({
-            message:"files is required",
-            status:"error"
-        })
+        const updates = req.body.updates;
+
+        if (!updates || !Array.isArray(updates)) {
+            return res.status(400).json({
+                message: 'Invalid request body. Expected "updates" array.',
+                status: 'error',
+            });
+        }
+
+        const results = await Promise.all(
+            updates.map(async (update) => {
+
+                console.log("UPDATE =", update);
+
+                const file =
+                    update.file ||
+                    update.path ||
+                    update.name ||
+                    update.filename;
+
+                const content = update.content || "";
+
+                if (!file) {
+                    return {
+                        error: "Missing file/path/name/filename",
+                        received: update
+                    };
+                }
+
+                const filePath = path.join(WORKING_DIR, file);
+
+                try {
+                    await fs.promises.mkdir(
+                        path.dirname(filePath),
+                        { recursive: true }
+                    );
+
+                    await fs.promises.writeFile(
+                        filePath,
+                        content,
+                        "utf8"
+                    );
+
+                    return {
+                        [file]: "updated successfully"
+                    };
+
+                } catch (err) {
+                    return {
+                        [file]: err.message
+                    };
+                }
+            })
+        );
+
+        return res.status(200).json({
+            message: "File update results",
+            results
+        });
+
+    } catch (error) {
+        console.error("UPDATE ERROR =", error);
+
+        return res.status(500).json({
+            message: error.message
+        });
     }
+});
 
 
-    const filelist = files.split(",");
 
-    const fileContents = {}
+app.post("/create-files", async (req, res) => {
+    try {
+        console.log("REQ BODY =", JSON.stringify(req.body, null, 2));
 
-    await Promise.all(
-        filelist.map(async(file)=>{
-            const filePath = `${WORKING_DIR}/${file}`
+        const files = req.body.files;
 
-            const stats = await fs.promises.stat(filePath)
+        if (!files || !Array.isArray(files)) {
+            return res.status(400).json({
+                message: 'Invalid request body. Expected "files" array.',
+                status: 'error',
+                received: req.body
+            });
+        }
 
-            if(!stats.isFile()){
-                throw new Error(`file not found ${file}`)
-            }
-            
-            const content = await fs.promises.readFile(filePath,"utf-8")
+        const results = await Promise.all(
+            files.map(async (fileObj) => {
 
-            fileContents[file] = content
-        })
-    )
+                console.log("FILE OBJ =", fileObj);
 
+                const file =
+                    fileObj.file ||
+                    fileObj.path ||
+                    fileObj.name ||
+                    fileObj.filename;
 
-    return res.status(200).json({
-        message:"files read successfully",
-        data:fileContents
-    })
-})
+                const content = fileObj.content || "";
 
+                if (!file || typeof file !== "string") {
+                    return {
+                        error: "Missing file/path/name/filename property",
+                        received: fileObj
+                    };
+                }
 
-app.patch("/update-files",async(req,res)=>{
+                const filePath = path.join(WORKING_DIR, file);
 
-    const updates = req.body.updates
+                try {
+                    await fs.promises.mkdir(
+                        path.dirname(filePath),
+                        { recursive: true }
+                    );
 
-    if(!updates){
-        return res.status(400).json({
-            message:"updates is required",
-            status:"error"
-        })
+                    await fs.promises.writeFile(
+                        filePath,
+                        content,
+                        "utf8"
+                    );
+
+                    return {
+                        file: file,
+                        status: "created"
+                    };
+
+                } catch (err) {
+                    return {
+                        file: file,
+                        status: "error",
+                        error: err.message
+                    };
+                }
+            })
+        );
+
+        return res.status(200).json({
+            message: "File creation completed",
+            results
+        });
+
+    } catch (error) {
+        console.error("CREATE FILE ERROR:", error);
+
+        return res.status(500).json({
+            message: error.message,
+            status: "error"
+        });
     }
-
-    const fileUpdated = {}
-
-   const result =  await Promise.all(
-        updates.map(async(update)=>{
-            const filePath = path.join(WORKING_DIR,update.name)
-            console.log(filePath)
-            const stats = await fs.promises.stat(filePath)
-
-            if(!stats.isFile()){
-                throw new Error(`file not found ${update.name}`)
-            }
-
-            await fs.promises.writeFile(filePath,update.content)
-
-            fileUpdated[update.name] = true
-        })
-    )
-
-    return res.status(200).json({
-        message:"files updated successfully",
-        data:fileUpdated,
-        result
-    })
-})
-
-app.post("/create-files",async(req,res)=>{
-    const files = req.body.files
-
-    if(!files){
-        return res.status(400).json({
-            message:"files is required",
-            status:"error"
-        })
-    }
-
-    const fileUpdated = {}
-
-   const result =  await Promise.all(
-        files.map(async(file)=>{
-            const filePath = path.join(WORKING_DIR,file.name)
-            console.log(filePath)
-            const stats = await fs.promises.stat(filePath)
-
-            if(!stats.isFile()){
-                throw new Error(`file not found ${file.name}`)
-            }
-
-            await fs.promises.writeFile(filePath,file.content)
-
-            fileUpdated[file.name] = true
-        })
-    )
-
-    return res.status(200).json({
-        message:"files created successfully",
-        data:fileUpdated,
-        result
-    })
-})
-
+});
 export default app;
