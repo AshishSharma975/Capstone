@@ -23,11 +23,36 @@ app.get("/",(req,res)=>{
 
 app.get("/list-files",async(req,res)=>{
 
-const elements = await fs.promises.readdir(WORKING_DIR)
+const listFiles = async(dir,baseDir)=>{
+    const entries = await fs.promises.readdir(dir,{withFileTypes:true})
 
+    const files = await Promise.all(entries.map(async(entry)=>{
+        const fullPath = path.join(dir,entry.name)
+        if(entry.isDirectory()){
+            return listFiles(fullPath,path.join(baseDir,entry.name))
+        }
+
+        const relativePath = path.join(baseDir,entry.name)
+
+        return {
+            name: relativePath,
+            type: "file"
+        }
+    }))
+
+    return {
+        name: baseDir,
+        type: "directory",
+        files: files
+    }
+
+
+}
+
+    const tree = await listFiles(WORKING_DIR,"/")
     return res.status(200).json({
-        message:"elements fetched successfully",
-        data:elements
+        message:"files listed successfully",
+        data:tree
     })
 })
 
