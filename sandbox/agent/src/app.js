@@ -23,30 +23,35 @@ app.get("/",(req,res)=>{
 
 app.get("/list-files",async(req,res)=>{
 
-const listFiles = async(dir,baseDir)=>{
-    const entries = await fs.promises.readdir(dir,{withFileTypes:true})
+const listFiles = async (dir, baseDir)=>{
+    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+    const files = [];
 
-    const files = await Promise.all(entries.map(async(entry)=>{
-        const fullPath = path.join(dir,entry.name)
+    for(const entry of entries){
+        const fullPath = path.join(dir, entry.name);
+        const relativePath = path.relative(baseDir, fullPath);
+
+        // exclude certain directry
+        if(entry.isDirectory() && ['node_modules','git','dist'].includes(entry.name)){
+            continue;
+        }
+
         if(entry.isDirectory()){
-            return listFiles(fullPath,path.join(baseDir,entry.name))
+            const children = await listFiles(fullPath,baseDir)
+            files.push({
+                name:relativePath,
+                type:"directory",
+                children
+            })
+        }else{
+            files.push({
+                name:relativePath,
+                type:"file"
+            })
         }
-
-        const relativePath = path.join(baseDir,entry.name)
-
-        return {
-            name: relativePath,
-            type: "file"
-        }
-    }))
-
-    return {
-        name: baseDir,
-        type: "directory",
-        files: files
     }
 
-
+    return files
 }
 
     const tree = await listFiles(WORKING_DIR,"/")
