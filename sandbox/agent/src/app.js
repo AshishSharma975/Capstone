@@ -1,8 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import fs from "fs";
-
-
+import path from "path";
 
 const WORKING_DIR = '/workspace'
 
@@ -29,6 +28,117 @@ const elements = await fs.promises.readdir(WORKING_DIR)
     return res.status(200).json({
         message:"elements fetched successfully",
         data:elements
+    })
+})
+
+
+app.get("/read-files",async(req,res)=>{
+    const files = req.query.files
+
+    if(!files){
+        return res.status(400).json({
+            message:"files is required",
+            status:"error"
+        })
+    }
+
+
+    const filelist = files.split(",");
+
+    const fileContents = {}
+
+    await Promise.all(
+        filelist.map(async(file)=>{
+            const filePath = `${WORKING_DIR}/${file}`
+
+            const stats = await fs.promises.stat(filePath)
+
+            if(!stats.isFile()){
+                throw new Error(`file not found ${file}`)
+            }
+            
+            const content = await fs.promises.readFile(filePath,"utf-8")
+
+            fileContents[file] = content
+        })
+    )
+
+
+    return res.status(200).json({
+        message:"files read successfully",
+        data:fileContents
+    })
+})
+
+
+app.patch("/update-files",async(req,res)=>{
+
+    const updates = req.body.updates
+
+    if(!updates){
+        return res.status(400).json({
+            message:"updates is required",
+            status:"error"
+        })
+    }
+
+    const fileUpdated = {}
+
+   const result =  await Promise.all(
+        updates.map(async(update)=>{
+            const filePath = path.join(WORKING_DIR,update.name)
+            console.log(filePath)
+            const stats = await fs.promises.stat(filePath)
+
+            if(!stats.isFile()){
+                throw new Error(`file not found ${update.name}`)
+            }
+
+            await fs.promises.writeFile(filePath,update.content)
+
+            fileUpdated[update.name] = true
+        })
+    )
+
+    return res.status(200).json({
+        message:"files updated successfully",
+        data:fileUpdated,
+        result
+    })
+})
+
+app.post("/create-files",async(req,res)=>{
+    const files = req.body.files
+
+    if(!files){
+        return res.status(400).json({
+            message:"files is required",
+            status:"error"
+        })
+    }
+
+    const fileUpdated = {}
+
+   const result =  await Promise.all(
+        files.map(async(file)=>{
+            const filePath = path.join(WORKING_DIR,file.name)
+            console.log(filePath)
+            const stats = await fs.promises.stat(filePath)
+
+            if(!stats.isFile()){
+                throw new Error(`file not found ${file.name}`)
+            }
+
+            await fs.promises.writeFile(filePath,file.content)
+
+            fileUpdated[file.name] = true
+        })
+    )
+
+    return res.status(200).json({
+        message:"files created successfully",
+        data:fileUpdated,
+        result
     })
 })
 
