@@ -19,7 +19,7 @@ export async function createPod(sandboxId) {
             containers: [
                 {
                     name: `sandbox-container-${sandboxId}`,
-                    image: "template",
+                    image: "template:v2",
                     imagePullPolicy: "IfNotPresent",
 
                     command: ["/bin/sh", "-c"],
