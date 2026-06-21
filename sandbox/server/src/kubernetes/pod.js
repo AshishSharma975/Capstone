@@ -19,14 +19,28 @@ export async function createPod(sandboxId) {
             containers: [
                 {
                     name: `sandbox-container-${sandboxId}`,
-                    imagePullPolicy: "IfNotPresent",
                     image: "template",
+                    imagePullPolicy: "IfNotPresent",
+
+                    command: ["/bin/sh", "-c"],
+                    args: [
+                        "cp -r /template/. /workspace && cd /workspace && npm run dev"
+                    ],
+
+                    volumeMounts: [
+                        {
+                            name: "workspace-volume",
+                            mountPath: "/workspace",
+                        },
+                    ],
+
                     ports: [
                         {
                             containerPort: 5173,
                             name: "http",
                         },
                     ],
+
                     resources: {
                         requests: {
                             cpu: "250m",
@@ -43,18 +57,21 @@ export async function createPod(sandboxId) {
                     name: "agent-container",
                     image: "agent:v2",
                     imagePullPolicy: "IfNotPresent",
+
                     ports: [
                         {
                             containerPort: 8080,
                             name: "http",
                         },
                     ],
+
                     volumeMounts: [
                         {
                             name: "workspace-volume",
                             mountPath: "/workspace",
                         },
                     ],
+
                     resources: {
                         requests: {
                             cpu: "250m",
