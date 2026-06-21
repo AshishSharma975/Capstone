@@ -40,13 +40,19 @@ export async function createPod(sandboxId) {
                 },
 
                 {
+                    name: "agent-container",
                     image: "agent:v2",
                     imagePullPolicy: "IfNotPresent",
-                    name: "agent-container",
                     ports: [
                         {
                             containerPort: 8080,
                             name: "http",
+                        },
+                    ],
+                    volumeMounts: [
+                        {
+                            name: "workspace-volume",
+                            mountPath: "/workspace",
                         },
                     ],
                     resources: {
@@ -59,12 +65,6 @@ export async function createPod(sandboxId) {
                             memory: "400Mi",
                         },
                     },
-                    volumeMounts: [
-                        {
-                            name: "workspace-volume",
-                            mountPath: "/workspace",
-                        },
-                    ],
                 },
             ],
         },
