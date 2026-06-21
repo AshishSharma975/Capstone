@@ -24,7 +24,7 @@ export async function createPod(sandboxId) {
 
                     command: ["/bin/sh", "-c"],
                     args: [
-                        "cp -r /app/. /workspace && cd /workspace && npm run dev"
+                        "cp -r /template/. /workspace && cd /workspace && npm run dev -- --host 0.0.0.0"
                     ],
 
                     volumeMounts: [
