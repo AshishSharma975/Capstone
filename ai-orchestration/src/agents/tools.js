@@ -3,7 +3,7 @@ import { tool } from "@langchain/core/tools";
 import * as z from "zod";
 
 const BASE_URL = "http://127.0.0.1";
-const HOST = "019ee8b5-dfe7-7318-a380-f1581fbfce85.agent.localhost";
+const HOST = "019ef519-b572-746d-bab1-b2385dc50396.agent.localhost";
 
 export const listFiles = tool(
   async () => {
@@ -21,21 +21,10 @@ export const listFiles = tool(
         }
       );
 
-      console.log("STATUS:", response.status);
-      console.log("DATA:", response.data);
-
       return JSON.stringify({
         files: response.data.files,
       });
     } catch (error) {
-      console.error("LIST FILES ERROR:");
-
-      if (error.response) {
-        console.error(error.response.data);
-      } else {
-        console.error(error.message);
-      }
-
       return JSON.stringify({
         success: false,
         error: error.message,
@@ -51,13 +40,9 @@ export const listFiles = tool(
 );
 
 export const readFiles = tool(
-  async (input = {}) => {
+  async ({ files }) => {
     try {
-      const files = input.files || [];
-
-      console.log("FILES:", files);
-
-      if (files.length === 0) {
+      if (!files || files.length === 0) {
         return JSON.stringify({
           success: false,
           error: "No files provided",
@@ -75,14 +60,6 @@ export const readFiles = tool(
 
       return JSON.stringify(response.data);
     } catch (error) {
-      console.error("READ FILES ERROR:");
-
-      if (error.response) {
-        console.error(error.response.data);
-      } else {
-        console.error(error.message);
-      }
-
       return JSON.stringify({
         success: false,
         error: error.message,
@@ -100,39 +77,48 @@ export const readFiles = tool(
 );
 
 export async function updateFilesDirect(files) {
-  try {
-    console.log("DIRECT UPDATE:");
-    console.log(files);
-
-    const response = await axios.patch(
-      `${BASE_URL}/update-files`,
-      {
-        updates: files,
+  const response = await axios.patch(
+    `${BASE_URL}/update-files`,
+    {
+      updates: files,
+    },
+    {
+      timeout: 300000,
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+      headers: {
+        Host: HOST,
+        "Content-Type": "application/json",
       },
-      {
-        timeout: 300000,
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
-        headers: {
-          Host: HOST,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("DIRECT STATUS:", response.status);
-    console.log("DIRECT DATA:", response.data);
-
-    return response.data;
-  } catch (error) {
-    console.error("DIRECT UPDATE ERROR:");
-
-    if (error.response) {
-      console.error(error.response.data);
-    } else {
-      console.error(error.message);
     }
+  );
 
-    throw error;
-  }
+  return response.data;
 }
+
+export const updateFilesTool = tool(
+  async ({ files }) => {
+    try {
+      const result = await updateFilesDirect(files);
+
+      return JSON.stringify(result);
+    } catch (error) {
+      return JSON.stringify({
+        success: false,
+        error: error.message,
+      });
+    }
+  },
+  {
+    name: "updateFiles",
+    description: "Update files in the project workspace.",
+    argsSchema: z.object({
+      files: z.array(
+        z.object({
+          file: z.string(),
+          content: z.string(),
+        })
+      ),
+    }),
+  }
+);
