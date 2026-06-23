@@ -2,14 +2,16 @@ import axios from "axios";
 import { tool } from "@langchain/core/tools";
 import * as z from "zod";
 
-const BASE_URL = "http://127.0.0.1";
+const BASE_URL = "http://router-service";
 const HOST = "019ef519-b572-746d-bab1-b2385dc50396.agent.localhost";
+
+// ================= LIST FILES =================
 
 export const listFiles = tool(
   async () => {
     try {
       console.log("===========");
-      console.log("using listFiles tool");
+      console.log("LIST FILES TOOL");
       console.log("===========");
 
       const response = await axios.get(
@@ -21,10 +23,10 @@ export const listFiles = tool(
         }
       );
 
-      return JSON.stringify({
-        files: response.data.files,
-      });
+      return JSON.stringify(response.data);
     } catch (error) {
+      console.error("LIST FILES ERROR:", error.message);
+
       return JSON.stringify({
         success: false,
         error: error.message,
@@ -34,15 +36,25 @@ export const listFiles = tool(
   {
     name: "listFiles",
     description:
-      "List all files available in the project. Always call this before reading files.",
-    argsSchema: z.object({}),
+      "List all project files. Always use this before reading files.",
+    schema: z.object({}),
   }
 );
 
+// ================= READ FILES =================
+
 export const readFiles = tool(
-  async ({ files }) => {
+  async (input) => {
     try {
-      if (!files || files.length === 0) {
+      let files = [];
+
+      if (input?.files) {
+        files = input.files;
+      }
+
+      console.log("FILES =", files);
+
+      if (!files.length) {
         return JSON.stringify({
           success: false,
           error: "No files provided",
@@ -60,6 +72,8 @@ export const readFiles = tool(
 
       return JSON.stringify(response.data);
     } catch (error) {
+      console.error("READ FILES ERROR:", error.message);
+
       return JSON.stringify({
         success: false,
         error: error.message,
@@ -69,12 +83,14 @@ export const readFiles = tool(
   {
     name: "readFiles",
     description:
-      "Read files. Example: { files: ['src/App.jsx','src/App.css'] }",
-    argsSchema: z.object({
+      "Read project files. Example: { files: ['src/App.jsx'] }",
+    schema: z.object({
       files: z.array(z.string()),
     }),
   }
 );
+
+// ================= DIRECT UPDATE =================
 
 export async function updateFilesDirect(files) {
   const response = await axios.patch(
@@ -84,8 +100,6 @@ export async function updateFilesDirect(files) {
     },
     {
       timeout: 300000,
-      maxBodyLength: Infinity,
-      maxContentLength: Infinity,
       headers: {
         Host: HOST,
         "Content-Type": "application/json",
@@ -96,13 +110,22 @@ export async function updateFilesDirect(files) {
   return response.data;
 }
 
+// ================= UPDATE FILES TOOL =================
+
 export const updateFilesTool = tool(
   async ({ files }) => {
     try {
+      console.log("===============");
+      console.log("UPDATE FILES TOOL");
+      console.log(files);
+      console.log("===============");
+
       const result = await updateFilesDirect(files);
 
       return JSON.stringify(result);
     } catch (error) {
+      console.error("UPDATE FILES ERROR:", error.message);
+
       return JSON.stringify({
         success: false,
         error: error.message,
@@ -111,8 +134,9 @@ export const updateFilesTool = tool(
   },
   {
     name: "updateFiles",
-    description: "Update files in the project workspace.",
-    argsSchema: z.object({
+    description:
+      "Update project files with generated content.",
+    schema: z.object({
       files: z.array(
         z.object({
           file: z.string(),
