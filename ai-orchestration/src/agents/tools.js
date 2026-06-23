@@ -51,59 +51,21 @@ export const listFiles = tool(
 );
 
 export const readFiles = tool(
-  async ({ files }) => {
-    console.log("FILES:", files);
-
-    if (!files || files.length === 0) {
-      return JSON.stringify({
-        success: false,
-        error: "No files provided",
-      });
-    }
-
-    const response = await axios.get(
-      `${BASE_URL}/read-files?files=${files.join(",")}`,
-      {
-        headers: {
-          Host: HOST,
-        },
-      }
-    );
-
-    return JSON.stringify(response.data);
-  },
-  {
-    name: "readFiles",
-    description:
-      "Read files. Example: { files: ['src/App.jsx','src/App.css'] }",
-    argsSchema: z.object({
-      files: z.array(z.string()),
-    }),
-  }
-);
-
-export const UpdateFiles = tool(
   async (input = {}) => {
     try {
       const files = input.files || [];
 
-      console.log("===========");
-      console.log("using updateFiles tool");
-      console.log("UPDATES:", files);
-      console.log("===========");
+      console.log("FILES:", files);
 
-      if (!files || files.length === 0) {
+      if (files.length === 0) {
         return JSON.stringify({
           success: false,
-          error: "files array is empty",
+          error: "No files provided",
         });
       }
 
-      const response = await axios.patch(
-        `${BASE_URL}/update-files`,
-        {
-          updates: files,
-        },
+      const response = await axios.get(
+        `${BASE_URL}/read-files?files=${files.join(",")}`,
         {
           headers: {
             Host: HOST,
@@ -111,12 +73,9 @@ export const UpdateFiles = tool(
         }
       );
 
-      console.log("STATUS:", response.status);
-      console.log("DATA:", response.data);
-
       return JSON.stringify(response.data);
     } catch (error) {
-      console.error("UPDATE FILES ERROR:");
+      console.error("READ FILES ERROR:");
 
       if (error.response) {
         console.error(error.response.data);
@@ -131,16 +90,40 @@ export const UpdateFiles = tool(
     }
   },
   {
-    name: "updateFiles",
+    name: "readFiles",
     description:
-      "Update files in the project. Requires files array with path and content.",
+      "Read files. Example: { files: ['src/App.jsx','src/App.css'] }",
     argsSchema: z.object({
-      files: z.array(
-        z.object({
-          path: z.string(),
-          content: z.string(),
-        })
-      ),
+      files: z.array(z.string()),
     }),
   }
 );
+
+export async function updateFilesDirect(files) {
+  try {
+    const response = await axios.patch(
+      `${BASE_URL}/update-files`,
+      {
+        updates: files,
+      },
+      {
+        headers: {
+          Host: HOST,
+        },
+        timeout: 60000,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("DIRECT UPDATE ERROR:");
+
+    if (error.response) {
+      console.error(error.response.data);
+    } else {
+      console.error(error.message);
+    }
+
+    throw error;
+  }
+}
