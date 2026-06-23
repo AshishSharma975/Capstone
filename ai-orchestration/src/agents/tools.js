@@ -101,18 +101,27 @@ export const readFiles = tool(
 
 export async function updateFilesDirect(files) {
   try {
+    console.log("DIRECT UPDATE:");
+    console.log(files);
+
     const response = await axios.patch(
       `${BASE_URL}/update-files`,
       {
         updates: files,
       },
       {
+        timeout: 300000,
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
         headers: {
           Host: HOST,
+          "Content-Type": "application/json",
         },
-        timeout: 60000,
       }
     );
+
+    console.log("DIRECT STATUS:", response.status);
+    console.log("DIRECT DATA:", response.data);
 
     return response.data;
   } catch (error) {
