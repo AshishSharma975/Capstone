@@ -8,6 +8,14 @@ app.use(express.json());
 
 
 
+app.get("/api/status/healthz",(req,res)=>{
+    res.status(200).json({
+        status:"AI Orchestration Engine is running!",
+        timestamp:new Date().toISOString(),
+        version:"1.0.0"
+    })
+})
+
 app.get("/api/ai/healthz",(req,res)=>{
     res.status(200).json({
         status:"AI Orchestration Engine is running!",
