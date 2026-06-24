@@ -5,29 +5,33 @@ const agentRouter = Router();
 
 agentRouter.post("/invoke", async (req, res) => {
   try {
+    console.log("STEP 1: Request received");
+
     const { message } = req.body;
 
-    if (!message) {
-      return res.status(400).json({
-        error: "message is required",
-      });
-    }
+    console.log("STEP 2: Before invoke");
 
-   const result = await codeAgent.invoke({
-  messages: [
-    {
-      role: "user",
-      content: message,
-    },
-  ],
-},{
-  recursionLimit: 10,
-});
+    const result = await codeAgent.invoke(
+      {
+        messages: [
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+      },
+      {
+        recursionLimit: 10,
+      }
+    );
 
-    res.json(result);
+    console.log("STEP 3: After invoke");
+    console.log(JSON.stringify(result,null,2))
+    return res.json(result.messages);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
+    console.error("STEP 4 ERROR:", error);
+
+    return res.status(500).json({
       error: error.message,
     });
   }

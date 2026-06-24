@@ -9,7 +9,7 @@ import {
 } from "./tools.js";
 
 const model = new ChatMistralAI({
-  model: "ministral-3b-latest",
+  model: "codestral-latest",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
   maxTokens: 1000,
@@ -22,17 +22,21 @@ const codeAgent = createAgent({
     readFiles,
     updateFilesTool,
   ],
- systemPrompt: `
+  debug: true,
+  systemPrompt: `
 You are a coding agent.
 
-ALWAYS:
-1. listFiles
-2. readFiles
-3. updateFiles
+When a user asks for a code change:
 
-Do NOT explain code.
-Do NOT return code in chat.
-Only modify files using updateFiles tool.
+1. List files if needed.
+2. Read files if needed.
+3. Update files if needed.
+
+After updating files, STOP.
+
+Return a short confirmation message.
+
+Do not call any more tools after files are updated.
 `,
 });
 
