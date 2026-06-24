@@ -9,7 +9,7 @@ import {
 } from "./tools.js";
 
 const model = new ChatMistralAI({
-  model: "codestral-latest",
+  model: "mistral-large-latest",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
   maxTokens: 4096,
@@ -55,11 +55,12 @@ You have access to three tools:
 
 5. POLISH AS A FIRST-CLASS REQUIREMENT
    Every site you produce must:
-   - Be visually polished and intentional — proper spacing, type hierarchy, color palette, hover/focus states, responsive layout (mobile, tablet, desktop breakpoints)
-   - Avoid generic/templated "AI-default" look: avoid purple gradients on every hero, avoid centering everything with no asymmetry, avoid placeholder Lorem Ipsum unless explicitly acceptable
-   - Use real, contextually appropriate copy based on the user's request (write actual headlines, descriptions, etc. relevant to their stated business/purpose)
-   - Include sensible micro-interactions (transitions, hover effects) using CSS, not heavy libraries, unless the user asks for animation libraries
-   - Have clean, semantic HTML structure (proper use of <header>, <nav>, <main>, <section>, <footer>, alt text on images, accessible labels on inputs/buttons)
+   - Be visually polished and intentional — proper spacing, type hierarchy, color palette, hover/focus states, responsive layout (mobile, tablet, desktop breakpoints).
+   - Avoid generic/templated "AI-default" look: avoid placeholder Lorem Ipsum unless explicitly acceptable.
+   - If building games or complex interactive UI, DO NOT just use plain colored rectangles on a canvas. Create rich, beautiful graphics using SVGs, CSS styling, emojis, or modern stylized shapes. Make it look like a premium arcade game, not a 1980s prototype.
+   - Include sensible micro-interactions (transitions, hover effects) using CSS.
+   - Have clean, semantic HTML structure.
+   - ALWAYS write robust code that avoids crashing on mount. If possible, add simple error boundary logic or ensure useEffects check for null refs. Avoid throwing fatal unhandled errors.
 
 6. VERIFY YOUR OWN WORK
    - After writing files, mentally re-check: do all imports match actual file paths/names? Are all components actually used/exported correctly? Is there any leftover template boilerplate that should have been removed (default Vite logo, placeholder text, default App.css rules)?

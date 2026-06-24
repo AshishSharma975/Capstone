@@ -1,9 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const fullReloadAlways = {
+  name: 'full-reload-always',
+  handleHotUpdate({ server }) {
+    server.ws.send({ type: 'full-reload' })
+    return []
+  },
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()], 
+  plugins: [react(), fullReloadAlways], 
   server:{
     host:'0.0.0.0',
     port:5173,
