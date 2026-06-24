@@ -122,49 +122,33 @@ app.patch("/update-files", async (req, res) => {
 
         const results = await Promise.all(
             updates.map(async (update) => {
-
+                // ... same inside loop, but we also check if package.json was updated
                 console.log("UPDATE =", update);
-
-                const file =
-                    update.file ||
-                    update.path ||
-                    update.name ||
-                    update.filename;
-
+                const file = update.file || update.path || update.name || update.filename;
                 const content = update.content || "";
-
-                if (!file) {
-                    return {
-                        error: "Missing file/path/name/filename",
-                        received: update
-                    };
-                }
-
+                if (!file) return { error: "Missing file/path/name/filename", received: update };
                 const filePath = path.join(WORKING_DIR, file);
-
                 try {
-                    await fs.promises.mkdir(
-                        path.dirname(filePath),
-                        { recursive: true }
-                    );
-
-                    await fs.promises.writeFile(
-                        filePath,
-                        content,
-                        "utf8"
-                    );
-
-                    return {
-                        [file]: "updated successfully"
-                    };
-
+                    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+                    await fs.promises.writeFile(filePath, content, "utf8");
+                    return { [file]: "updated successfully", fileUpdated: file };
                 } catch (err) {
-                    return {
-                        [file]: err.message
-                    };
+                    return { [file]: err.message };
                 }
             })
         );
+
+        // Check if package.json was updated
+        const packageJsonUpdated = results.some(r => r.fileUpdated === "package.json");
+        if (packageJsonUpdated) {
+            console.log("package.json was updated, running npm install...");
+            import("child_process").then(cp => {
+                cp.exec("npm install", { cwd: WORKING_DIR }, (error, stdout, stderr) => {
+                    if (error) console.error("npm install failed:", error);
+                    else console.log("npm install successful:", stdout);
+                });
+            });
+        }
 
         return res.status(200).json({
             message: "File update results",

@@ -9,10 +9,11 @@ import {
 } from "./tools.js";
 
 const model = new ChatMistralAI({
-  model: "mistral-large-latest",
+  model: "codestral-latest",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
   maxTokens: 4096,
+  timeout: 600000, // 10 minutes
 });
 
 const codeAgent = createAgent({
@@ -56,8 +57,10 @@ You have access to three tools:
 5. POLISH AS A FIRST-CLASS REQUIREMENT
    Every site you produce must:
    - Be visually polished and intentional — proper spacing, type hierarchy, color palette, hover/focus states, responsive layout (mobile, tablet, desktop breakpoints).
-   - Avoid generic/templated "AI-default" look: avoid placeholder Lorem Ipsum unless explicitly acceptable.
-   - If building games or complex interactive UI, DO NOT just use plain colored rectangles on a canvas. Create rich, beautiful graphics using SVGs, CSS styling, emojis, or modern stylized shapes. Make it look like a premium arcade game, not a 1980s prototype.
+   - Avoid generic/templated "AI-default" look: avoid raw unstyled lists, plain colored rectangles, or basic Arial text unless specifically requested. Use SVGs, emojis, or CSS shapes to make graphics and components look beautiful.
+   - For all code generated, ENSURE it is wrapped in error boundaries and handles missing props properly so the app does not crash to a white screen.
+   - NEVER wrap App.jsx with <BrowserRouter> or <Router>. The App component is ALREADY wrapped in <BrowserRouter> inside main.jsx. If you need routing, just use <Routes> and <Route> directly in App.jsx.
+   - Important: When adding new UI components, remember to export them correctly and ensure any imports point to the correct file path.
    - Include sensible micro-interactions (transitions, hover effects) using CSS.
    - Have clean, semantic HTML structure.
    - ALWAYS write robust code that avoids crashing on mount. If possible, add simple error boundary logic or ensure useEffects check for null refs. Avoid throwing fatal unhandled errors.
