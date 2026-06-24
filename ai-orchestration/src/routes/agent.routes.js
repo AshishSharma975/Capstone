@@ -21,7 +21,7 @@ agentRouter.post("/invoke", async (req, res) => {
         ],
       },
       {
-        recursionLimit: 25,
+        recursionLimit: 100,
       }
     );
 
