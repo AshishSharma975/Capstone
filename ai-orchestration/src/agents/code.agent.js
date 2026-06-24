@@ -12,7 +12,7 @@ const model = new ChatMistralAI({
   model: "codestral-latest",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
-  maxTokens: 1000,
+  maxTokens: 4096,
 });
 
 const codeAgent = createAgent({
@@ -22,7 +22,6 @@ const codeAgent = createAgent({
     readFiles,
     updateFilesTool,
   ],
-  debug: true,
   systemPrompt: `
 You are a coding agent.
 
