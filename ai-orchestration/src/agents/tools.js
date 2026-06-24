@@ -3,12 +3,18 @@ import { tool } from "@langchain/core/tools";
 import * as z from "zod";
 
 const BASE_URL = "http://router-service";
-const HOST = "019ef519-b572-746d-bab1-b2385dc50396.agent.localhost";
 
 // ================= LIST FILES =================
 
 export const listFiles = tool(
-  async () => {
+  async ({},config) => {
+
+
+    const writer = config.writer;
+
+    writer.write("listing files in project directory...\n");
+
+    const HOST = `${config.context.projectId}.agent.localhost`;
     try {
       console.log("===========");
       console.log("LIST FILES TOOL");
@@ -44,7 +50,15 @@ export const listFiles = tool(
 // ================= READ FILES =================
 
 export const readFiles = tool(
-  async (input) => {
+
+  async (input,config) => {
+
+    const writer = config.writer;
+
+    writer.write("Reading files from project directory...\n");
+
+
+    const HOST = `${config.context.projectId}.agent.localhost`;
     try {
       let files = [];
 
@@ -92,7 +106,13 @@ export const readFiles = tool(
 
 // ================= DIRECT UPDATE =================
 
-export async function updateFilesDirect(files) {
+async function updateFilesDirect(files,config) {
+
+   const writer = config.writer;
+
+  writer.write("Updating files in project directory...\n");
+
+  const HOST = `${config.context.projectId}.agent.localhost`;
   const response = await axios.patch(
     `${BASE_URL}/update-files`,
     {
@@ -113,14 +133,22 @@ export async function updateFilesDirect(files) {
 // ================= UPDATE FILES TOOL =================
 
 export const updateFilesTool = tool(
-  async ({ files }) => {
+
+
+  async ({ files },config) => {
+
+     const writer = config.writer;
+
+    writer.write("Updating files in project directory...\n");
+
+    
     try {
       console.log("===============");
       console.log("UPDATE FILES TOOL");
       console.log(files);
       console.log("===============");
 
-      const result = await updateFilesDirect(files);
+      const result = await updateFilesDirect(files,config);
 
       return JSON.stringify(result);
     } catch (error) {
@@ -130,7 +158,7 @@ export const updateFilesTool = tool(
         success: false,
         error: error.message,
       });
-    }
+    }   
   },
   {
     name: "updateFiles",

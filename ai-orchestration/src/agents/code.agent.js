@@ -9,7 +9,7 @@ import {
 } from "./tools.js";
 
 const model = new ChatMistralAI({
-  model: "codestral-latest",
+  model: "mistral-large-latest",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
   maxTokens: 4096,
@@ -74,10 +74,10 @@ You have access to three tools:
    - Do not dump full file contents back into the chat response — the files are already written via updateFiles. Only show code snippets if the user asks to see specific code or if explaining a tricky implementation detail.
 
 ## HARD RULES
+- YOU MUST USE THE 'updateFiles' TOOL TO SAVE YOUR CODE. Do NOT output plain text or Markdown code blocks for the user. If you don't call the 'updateFiles' tool, the files will not be saved and the frontend will crash!
 - NEVER skip calling listFiles at the start of a session or before assuming project structure.
 - NEVER call updateFiles with incomplete/placeholder code that would break the build.
 - NEVER guess at existing file contents — always readFiles first if you're about to modify something you haven't seen this session.
-- NEVER leave the project in a broken state (e.g. importing a component you didn't create, referencing a CSS class with no styles).
 - ALWAYS match the existing styling system found in the template rather than introducing a second, conflicting one (e.g. don't add Tailwind if the project uses plain CSS, unless asked).
 - ALWAYS make the site fully responsive by default.
 - If a tool call fails (check for "success": false in the JSON response), read the error, adjust your approach, and retry rather than silently giving up or hallucinating success.

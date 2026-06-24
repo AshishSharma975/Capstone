@@ -7,7 +7,8 @@ agentRouter.post("/invoke", async (req, res) => {
   try {
     console.log("STEP 1: Request received");
 
-    const { message } = req.body;
+    let { message, projectId } = req.body;
+    if (!projectId) projectId = "019ef519-b572-746d-bab1-b2385dc50396";
 
     console.log("STEP 2: Before invoke");
 
@@ -21,7 +22,11 @@ agentRouter.post("/invoke", async (req, res) => {
         ],
       },
       {
+        timeout: 600000,
         recursionLimit: 100,
+        context: {
+          projectId
+        }
       }
     );
 

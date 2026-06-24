@@ -142,10 +142,22 @@ app.patch("/update-files", async (req, res) => {
         const packageJsonUpdated = results.some(r => r.fileUpdated === "package.json");
         if (packageJsonUpdated) {
             console.log("package.json was updated, running npm install...");
-            import("child_process").then(cp => {
-                cp.exec("npm install", { cwd: WORKING_DIR }, (error, stdout, stderr) => {
+            const cp = await import("child_process");
+            await new Promise((resolve, reject) => {
+                cp.exec("npm install", { cwd: WORKING_DIR }, async (error, stdout, stderr) => {
                     if (error) console.error("npm install failed:", error);
                     else console.log("npm install successful:", stdout);
+                    
+                    // Touch vite.config.js to force Vite to restart and pick up new dependencies
+                    try {
+                        const viteConfigPath = path.join(WORKING_DIR, "vite.config.js");
+                        const now = new Date();
+                        await fs.promises.utimes(viteConfigPath, now, now);
+                        console.log("Touched vite.config.js to restart Vite");
+                    } catch (e) {
+                        console.error("Failed to touch vite.config.js", e);
+                    }
+                    resolve();
                 });
             });
         }
