@@ -2,7 +2,7 @@ import axios from "axios";
 import { tool } from "@langchain/core/tools";
 import * as z from "zod";
 
-const BASE_URL = "http://router-service";
+const BASE_URL = process.env.ROUTER_URL || "http://127.0.0.1";
 
 // ================= LIST FILES =================
 

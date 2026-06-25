@@ -12,8 +12,9 @@ const model = new ChatMistralAI({
   model: "mistral-large-latest",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
-  maxTokens: 4096,
-  timeout: 600000, // 10 minutes
+  maxTokens: 8192,
+  streaming: true, // Crucial to prevent Mistral SDK 30s timeout on large responses
+  maxRetries: 3,
 });
 
 const codeAgent = createAgent({

@@ -15,6 +15,9 @@ agentRouter.post("/invoke", async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    
+    // Disable socket timeout to prevent the connection from closing during long LLM tasks
+    req.socket.setTimeout(0);
 
     // Optional: send an initial event so Postman knows the stream started
     res.write(`data: ${JSON.stringify({ type: "start", message: "Agent started..." })}\n\n`);
@@ -50,9 +53,13 @@ agentRouter.post("/invoke", async (req, res) => {
   } catch (error) {
     console.error("STEP 4 ERROR:", error);
 
-    return res.status(500).json({
-      error: error.message,
-    });
+    // Stream is already open, so we must send error as SSE event rather than JSON
+    if (!res.headersSent) {
+      return res.status(500).json({ error: error.message });
+    } else {
+      res.write(`data: ${JSON.stringify({ type: "error", message: error.message })}\n\n`);
+      return res.end();
+    }
   }
 });
 
