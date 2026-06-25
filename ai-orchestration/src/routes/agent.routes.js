@@ -12,6 +12,13 @@ agentRouter.post("/invoke", async (req, res) => {
 
     console.log("STEP 2: Before invoke");
 
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Optional: send an initial event so Postman knows the stream started
+    res.write(`data: ${JSON.stringify({ type: "start", message: "Agent started..." })}\n\n`);
+
     const result = await codeAgent.invoke(
       {
         messages: [
@@ -25,14 +32,21 @@ agentRouter.post("/invoke", async (req, res) => {
         timeout: 600000,
         recursionLimit: 100,
         context: {
-          projectId
+          projectId,
+          writer: {
+            write: (stepMessage) => {
+              // Send the tool progress step as an SSE event
+              res.write(`data: ${JSON.stringify({ type: "step", message: stepMessage })}\n\n`);
+            }
+          }
         }
       }
     );
 
     console.log("STEP 3: After invoke");
-    console.log(JSON.stringify(result,null,2))
-    return res.json(result.messages);
+    // Send final result and close stream
+    res.write(`data: ${JSON.stringify({ type: "complete", result: result.messages })}\n\n`);
+    return res.end();
   } catch (error) {
     console.error("STEP 4 ERROR:", error);
 

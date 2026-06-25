@@ -8,12 +8,9 @@ const BASE_URL = "http://router-service";
 
 export const listFiles = tool(
   async ({},config) => {
-
-
-    const writer = config.writer;
-
-    writer.write("listing files in project directory...\n");
-
+    if (config?.context?.writer) {
+      config.context.writer.write("Listing project files...");
+    }
     const HOST = `${config.context.projectId}.agent.localhost`;
     try {
       console.log("===========");
@@ -50,14 +47,11 @@ export const listFiles = tool(
 // ================= READ FILES =================
 
 export const readFiles = tool(
-
   async (input,config) => {
-
-    const writer = config.writer;
-
-    writer.write("Reading files from project directory...\n");
-
-
+    if (config?.context?.writer) {
+      const fileNames = input?.files ? input.files.join(", ") : "files";
+      config.context.writer.write(`Reading ${fileNames}...`);
+    }
     const HOST = `${config.context.projectId}.agent.localhost`;
     try {
       let files = [];
@@ -107,11 +101,10 @@ export const readFiles = tool(
 // ================= DIRECT UPDATE =================
 
 async function updateFilesDirect(files,config) {
-
-   const writer = config.writer;
-
-  writer.write("Updating files in project directory...\n");
-
+  if (config?.context?.writer) {
+    const fileNames = files.map(f => f.file).join(", ");
+    config.context.writer.write(`Updating ${fileNames}...`);
+  }
   const HOST = `${config.context.projectId}.agent.localhost`;
   const response = await axios.patch(
     `${BASE_URL}/update-files`,
@@ -133,15 +126,7 @@ async function updateFilesDirect(files,config) {
 // ================= UPDATE FILES TOOL =================
 
 export const updateFilesTool = tool(
-
-
   async ({ files },config) => {
-
-     const writer = config.writer;
-
-    writer.write("Updating files in project directory...\n");
-
-    
     try {
       console.log("===============");
       console.log("UPDATE FILES TOOL");
