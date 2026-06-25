@@ -8,24 +8,12 @@ import {
   updateFilesTool,
 } from "./tools.js";
 
-import { HTTPClient } from "@mistralai/mistralai/lib/http.js";
-
-const customFetcher = async (url, options) => {
-  const newOptions = { ...options };
-  if (newOptions.signal) delete newOptions.signal; // Disable the 30s AbortSignal
-  return fetch(url, newOptions);
-};
-
-const httpClient = new HTTPClient({ fetcher: customFetcher });
-
 const model = new ChatMistralAI({
   model: "mistral-large-latest",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
-  maxTokens: 8192,
-  streaming: true,
-  maxRetries: 3,
-  httpClient: httpClient,
+  maxTokens: 4096,
+  timeout: 600000, // 10 minutes
 });
 
 const codeAgent = createAgent({
