@@ -8,7 +8,7 @@ try {
       messages: [
         {
           role: "user",
-          content: "change src/App.jsx and show Hello Ashish",
+          content: "change src/App.jsx and show Hello Ashish sharmaa",
         },
       ],
     },
