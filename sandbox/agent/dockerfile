@@ -1,11 +1,12 @@
 FROM node:20-bullseye
 
-
-RUN apt-get update && apt-get install -y git \
-python3 \
-make \
-g++ \
-&& rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    git \
+    python3 \
+    make \
+    g++ \
+    bash \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -15,8 +16,8 @@ RUN npm install
 
 COPY . .
 
+RUN mkdir -p /workspace
+
 EXPOSE 3002
 
-RUN mkdir /workspace
-
-CMD ["node","server.js"]
+CMD ["node", "server.js"]

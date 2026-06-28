@@ -2,11 +2,16 @@ import express from "express";
 import morgan from "morgan";
 import fs from "fs";
 import path from "path";
+import {Server} from "socket.io";
+import http from "http";
+import pty from "node-pty";
+import os from "os";
 
 const WORKING_DIR = '/workspace'
 
 
 const app = express();
+const httpServer = http.createServer(app);
 
 app.use(morgan('dev'));
 app.use(
@@ -14,6 +19,15 @@ app.use(
     limit: "50mb",
   })
 );
+
+const io = new Server(httpServer,{
+    cors:{
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    }
+})
+
+
 
 app.use(
   express.urlencoded({
@@ -29,6 +43,47 @@ app.get("/",(req,res)=>{
         timestamp: new Date().toISOString()
     })
 })
+
+
+
+const shell = process.env.SHELL || "/bin/bash";
+
+const ptyProcess = pty.spawn(shell, [], {
+    name: "xterm-256color",
+    cols: 80,
+    rows: 24,
+    cwd: WORKING_DIR,
+    env: {
+        ...process.env,
+        TERM: "xterm-256color",
+    },
+});
+
+
+ptyProcess.onData((data)=>{
+    io.emit("terminal-output",data);
+})
+
+ptyProcess.onExit((code,signal)=>{
+    console.log("Terminal process exited",code,signal);
+})
+
+
+io.on("connection", (socket) => {
+    console.log("User connected:", socket.id);
+
+    socket.on("terminal-input", (data) => {
+        if (ptyProcess) {
+            ptyProcess.write(data);
+        }
+    });
+
+    socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+    });
+});
+
+
 
 
 app.get("/list-files", async (req, res) => {
@@ -255,4 +310,4 @@ app.post("/create-files", async (req, res) => {
         });
     }
 });
-export default app;
+export default httpServer;
