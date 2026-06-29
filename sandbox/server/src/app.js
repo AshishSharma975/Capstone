@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.get("/api/sandbox/health", (req, res) => {
     res.status(200).json({
-        message: "OK Chachu",
+        message: "OK",
         status: 200,
         timestamp: new Date().toISOString()
     });
@@ -27,10 +27,10 @@ app.post("/api/sandbox/start", async (req, res) => {
             createService(sandboxId)
         ]);
 
-        console.log("sandbox environment created successfully");
+        console.log("sandbox environment is created successfully");
 
         return res.status(201).json({
-            message: "sandbox environment created successfully",
+            message: "sandbox environment is created successfully",
             sandboxId,
             previewUrl: `http://${sandboxId}.preview.localhost`
         });
