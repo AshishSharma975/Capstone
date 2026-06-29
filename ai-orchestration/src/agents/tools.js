@@ -13,10 +13,6 @@ export const listFiles = tool(
     }
     const HOST = `${config.context.projectId}.agent.localhost`;
     try {
-      console.log("===========");
-      console.log("LIST FILES TOOL");
-      console.log("===========");
-
       const response = await axios.get(
         `${BASE_URL}/list-files`,
         {
