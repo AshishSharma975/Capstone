@@ -65,12 +65,12 @@ ptyProcess.onData((data)=>{
 })
 
 ptyProcess.onExit((code,signal)=>{
-    console.log("Terminal process exited",code,signal);
+    console.log("Terminal process is exited",code,signal);
 })
 
 
 io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    console.log("User is connected:", socket.id);
 
     socket.on("terminal-input", (data) => {
         if (ptyProcess) {
