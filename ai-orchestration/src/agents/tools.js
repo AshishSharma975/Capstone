@@ -9,7 +9,7 @@ const BASE_URL = process.env.ROUTER_URL || "http://127.0.0.1";
 export const listFiles = tool(
   async ({},config) => {
     if (config?.context?.writer) {
-      config.context.writer.write("Listing project files...");
+      config.context.writer.write("Listing all project files...");
     }
     const HOST = `${config.context.projectId}.agent.localhost`;
     try {
@@ -35,7 +35,7 @@ export const listFiles = tool(
   {
     name: "listFiles",
     description:
-      "List all project files. Always use this before reading files.",
+      "List all project files. Always use this before is reading files.",
     schema: z.object({}),
   }
 );
