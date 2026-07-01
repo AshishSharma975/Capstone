@@ -61,7 +61,7 @@ export const readFiles = tool(
       if (!files.length) {
         return JSON.stringify({
           success: false,
-          error: "No files provided",
+          error: "No files are provided",
         });
       }
 
@@ -87,7 +87,7 @@ export const readFiles = tool(
   {
     name: "readFiles",
     description:
-      "Read project files. Example: { files: ['src/App.jsx'] }",
+      "Read project files. Example is: { files: ['src/App.jsx'] }",
     schema: z.object({
       files: z.array(z.string()),
     }),
