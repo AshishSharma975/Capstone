@@ -64,4 +64,23 @@ app.use((req, res, next) => {
 
 });
 
+// WebSocket upgrade handlers (called from server.js)
+app.agentUpgrade = (req, socket, head, sandboxId) => {
+  const proxy = getAgentProxy(sandboxId);
+  if (proxy.upgrade) {
+    proxy.upgrade(req, socket, head);
+  } else {
+    socket.destroy();
+  }
+};
+
+app.previewUpgrade = (req, socket, head, sandboxId) => {
+  const proxy = getProxy(sandboxId);
+  if (proxy.upgrade) {
+    proxy.upgrade(req, socket, head);
+  } else {
+    socket.destroy();
+  }
+};
+
 export default app;

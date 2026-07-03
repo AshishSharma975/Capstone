@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+/* ============================================================
+   CSS Custom Properties — VS Code Dark Theme
+   ============================================================ */
+:root {
+  /* Background layers */
+  --bg-base: #0d0e11;
+  --bg-surface: #13141a;
+  --bg-elevated: #1a1c24;
+  --bg-overlay: #1e2029;
+  --bg-input: #1a1c24;
+
+  /* Borders */
+  --border: #2a2d3e;
+  --border-focus: #5865f2;
+
+  /* Text */
+  --text-primary: #e2e4ee;
+  --text-secondary: #8b8fa8;
+  --text-muted: #555870;
+  --text-code: #cdd6f4;
+
+  /* Accent — electric indigo */
+  --accent: #6366f1;
+  --accent-hover: #7c7ff5;
+  --accent-glow: rgba(99, 102, 241, 0.25);
+  --accent-subtle: rgba(99, 102, 241, 0.08);
+
+  /* Semantic */
+  --success: #22d3a0;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --info: #60a5fa;
+
+  /* Terminal */
+  --terminal-bg: #090a0d;
+  --terminal-text: #cdd6f4;
+
+  /* Fonts */
+  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+  --shadow-glow: 0 0 24px var(--accent-glow);
+}
+
+/* ============================================================
+   Reset
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Allow scrolling inside specific containers */
+.scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ============================================================
+   Tailwind v4 — Custom Utilities via @layer
+   ============================================================ */
+
+/* Glass card effect */
+.glass {
+  background: rgba(26, 28, 36, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+/* Code font */
+.font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+/* Animated gradient background */
+.gradient-bg {
+  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
+              radial-gradient(ellipse 60% 50% at 80% 80%, rgba(139, 92, 246, 0.08), transparent),
+              var(--bg-base);
+}
+
+/* Glow ring */
+.glow-ring {
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-glow);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: var(--text-primary);
+}
+
+/* XTerm overrides */
+.xterm-viewport {
+  overflow-y: auto !important;
+}
+
+/* Resize handle */
+.resize-handle {
+  position: relative;
+  z-index: 10;
+  cursor: col-resize;
+  transition: background 0.15s;
+}
+
+.resize-handle:hover,
+.resize-handle.dragging {
+  background: var(--accent) !important;
+}
+
+.resize-handle-v {
+  cursor: row-resize;
+}
