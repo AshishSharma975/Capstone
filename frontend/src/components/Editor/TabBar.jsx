@@ -7,7 +7,10 @@ import { getFileName } from '../../utils/fileUtils';
 import useAppStore from '../../store/useAppStore';
 
 export default function TabBar() {
-  const { openTabs, activeTabPath, setActiveTab, closeTab } = useAppStore();
+  const openTabs = useAppStore(state => state.openTabs);
+  const activeTabPath = useAppStore(state => state.activeTabPath);
+  const setActiveTab = useAppStore(state => state.setActiveTab);
+  const closeTab = useAppStore(state => state.closeTab);
 
   if (openTabs.length === 0) return null;
 

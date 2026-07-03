@@ -6,7 +6,8 @@ import FileExplorer from '../Explorer/FileExplorer';
 import useAppStore from '../../store/useAppStore';
 
 export default function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar } = useAppStore();
+  const sidebarCollapsed = useAppStore(state => state.sidebarCollapsed);
+  const toggleSidebar = useAppStore(state => state.toggleSidebar);
 
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--bg-surface)' }}>

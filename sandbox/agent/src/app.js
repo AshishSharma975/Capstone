@@ -24,7 +24,12 @@ const io = new Server(httpServer,{
     cors:{
         origin: "*",
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    }
+    },
+    // Increase timeouts so connections don't drop through nginx reverse proxy
+    pingTimeout: 60000,      // 60s before considering connection dead
+    pingInterval: 25000,     // ping every 25s
+    transports: ['websocket', 'polling'],  // server supports both, client forces websocket
+    allowUpgrades: true,
 })
 
 

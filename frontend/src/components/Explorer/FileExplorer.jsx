@@ -11,7 +11,8 @@ import { useFileExplorer } from '../../hooks/useFileExplorer';
 import { buildFileTree } from '../../utils/fileUtils';
 
 export default function FileExplorer() {
-  const { files, sandboxId } = useAppStore();
+  const files = useAppStore(state => state.files);
+  const sandboxId = useAppStore(state => state.sandboxId);
   const { loadFiles, openFile } = useFileExplorer();
   const [loading, setLoading] = [false, () => {}]; // managed via try/catch in hook
 

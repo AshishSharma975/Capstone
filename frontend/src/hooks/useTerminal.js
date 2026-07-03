@@ -21,17 +21,17 @@ export function useTerminal(containerRef, sandboxId) {
   const connect = useCallback(() => {
     if (!sandboxId || !containerRef.current) return;
 
-    const socketUrl = `http://${sandboxId}.agent.localhost`;
-
-    // Cleanup previous socket
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-    }
-
-    const socket = io(socketUrl, {
-      transports: ['websocket', 'polling'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+    // Connect via Vite proxy to avoid DNS resolution issues on Windows for *.agent.localhost
+    const socket = io('/', {
+      path: '/api/agent-ws/socket.io',
+      // IMPORTANT: websocket-only — polling creates rapid connect/disconnect loops
+      // through nginx because each poll is a new HTTP request that looks like a reconnect
+      transports: ['websocket'],
+      query: { sandboxId },
+      reconnectionAttempts: 10,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+      timeout: 20000,
     });
     socketRef.current = socket;
 

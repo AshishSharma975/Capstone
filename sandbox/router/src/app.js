@@ -64,21 +64,28 @@ app.use((req, res, next) => {
 });
 
 import httpProxy from "http-proxy";
-const wsProxy = httpProxy.createProxyServer({ ws: true, changeOrigin: true });
+const agentWsProxy = httpProxy.createProxyServer({ ws: true, changeOrigin: true });
+const previewWsProxy = httpProxy.createProxyServer({ ws: true, changeOrigin: false });
 
-wsProxy.on('error', (err, req, socket) => {
-  socket.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
+agentWsProxy.on('error', (err, req, socket) => {
+  console.error("agentWsProxy ERROR:", err);
+  if (socket) socket.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
+});
+
+previewWsProxy.on('error', (err, req, socket) => {
+  console.error("previewWsProxy ERROR:", err);
+  if (socket) socket.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
 });
 
 // WebSocket upgrade handlers (called from server.js)
 app.agentUpgrade = (req, socket, head, sandboxId) => {
-  wsProxy.ws(req, socket, head, {
+  agentWsProxy.ws(req, socket, head, {
     target: `http://sandbox-service-${sandboxId}:8080`
   });
 };
 
 app.previewUpgrade = (req, socket, head, sandboxId) => {
-  wsProxy.ws(req, socket, head, {
+  previewWsProxy.ws(req, socket, head, {
     target: `http://sandbox-service-${sandboxId}:80`
   });
 };

@@ -10,6 +10,21 @@ export default defineConfig({
       
     },
     proxy:{
+      "/api/ai":{
+        target: "http://localhost:6000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api/agent-ws": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        ws: true,
+      },
+      "/api/agent":{
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        secure: false,
+      },
       "/api":{
         target: "http://localhost:5000",
         changeOrigin: true,
@@ -18,3 +33,4 @@ export default defineConfig({
     }
   }
 })
+

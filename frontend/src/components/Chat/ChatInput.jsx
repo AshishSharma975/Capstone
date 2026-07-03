@@ -8,7 +8,8 @@ import { useSSE } from '../../hooks/useSSE';
 
 export default function ChatInput() {
   const [prompt, setPrompt] = useState('');
-  const { isAIRunning, cancelAI } = useAppStore();
+  const isAIRunning = useAppStore(state => state.isAIRunning);
+  const cancelAI = useAppStore(state => state.cancelAI);
   const { sendMessage } = useSSE();
   const textareaRef = useRef(null);
 

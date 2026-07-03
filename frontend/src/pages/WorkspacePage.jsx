@@ -14,7 +14,7 @@ import useAppStore from '../store/useAppStore';
 
 export default function WorkspacePage() {
   const navigate = useNavigate();
-  const { sandboxId } = useAppStore();
+  const sandboxId = useAppStore(state => state.sandboxId);
 
   // Redirect to landing if no sandbox (e.g. direct URL access or page refresh)
   useEffect(() => {

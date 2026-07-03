@@ -20,7 +20,8 @@ const STEP_COLORS = {
 };
 
 export default function AITimeline() {
-  const { sseProgress, isAIRunning } = useAppStore();
+  const sseProgress = useAppStore(state => state.sseProgress);
+  const isAIRunning = useAppStore(state => state.isAIRunning);
 
   if (sseProgress.length === 0 && !isAIRunning) return null;
 

@@ -7,7 +7,8 @@ import useAppStore from '../../store/useAppStore';
 import Spinner from '../UI/Spinner';
 
 export default function PreviewPanel() {
-  const { previewUrl, previewKey } = useAppStore();
+  const previewUrl = useAppStore(state => state.previewUrl);
+  const previewKey = useAppStore(state => state.previewKey);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const iframeRef = useRef(null);

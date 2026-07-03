@@ -11,7 +11,7 @@ import EmptyState from '../UI/EmptyState';
 import useAppStore from '../../store/useAppStore';
 
 export default function ChatPanel() {
-  const { chatHistory } = useAppStore();
+  const chatHistory = useAppStore(state => state.chatHistory);
   const bottomRef = useRef(null);
 
   // Auto-scroll to latest message

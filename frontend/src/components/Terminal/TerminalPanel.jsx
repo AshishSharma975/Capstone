@@ -11,7 +11,8 @@ import '@xterm/xterm/css/xterm.css';
 
 export default function TerminalPanel() {
   const containerRef = useRef(null);
-  const { sandboxId, terminalConnected } = useAppStore();
+  const sandboxId = useAppStore(state => state.sandboxId);
+  const terminalConnected = useAppStore(state => state.terminalConnected);
   const { initTerminal, cleanup, fitTerminal } = useTerminal(containerRef, sandboxId);
 
   useEffect(() => {

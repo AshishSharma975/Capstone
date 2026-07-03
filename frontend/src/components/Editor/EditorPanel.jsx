@@ -9,7 +9,8 @@ import EmptyState from '../UI/EmptyState';
 import useAppStore from '../../store/useAppStore';
 
 export default function EditorPanel() {
-  const { openTabs, activeTabPath } = useAppStore();
+  const openTabs = useAppStore(state => state.openTabs);
+  const activeTabPath = useAppStore(state => state.activeTabPath);
 
   const activeTab = openTabs.find((t) => t.path === activeTabPath);
 
