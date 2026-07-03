@@ -1,0 +1,70 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"nginx.ingress.kubernetes.io/configuration-snippet":"proxy_set_header Upgrade $http_upgrade;\nproxy_set_header Connection \"upgrade\";\n","nginx.ingress.kubernetes.io/proxy-connect-timeout":"3600","nginx.ingress.kubernetes.io/proxy-http-version":"1.1","nginx.ingress.kubernetes.io/proxy-read-timeout":"3600","nginx.ingress.kubernetes.io/proxy-send-timeout":"3600","nginx.ingress.kubernetes.io/upstream-hash-by":"$http_host"},"name":"codespace","namespace":"default"},"spec":{"ingressClassName":"nginx","rules":[{"http":{"paths":[{"backend":{"service":{"name":"main-sandbox-service","port":{"number":80}}},"path":"/api/sandbox","pathType":"Prefix"}]}},{"http":{"paths":[{"backend":{"service":{"name":"ai-service","port":{"number":80}}},"path":"/api/ai","pathType":"Prefix"}]}},{"host":"*.preview.localhost","http":{"paths":[{"backend":{"service":{"name":"router-service","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}},{"host":"*.agent.localhost","http":{"paths":[{"backend":{"service":{"name":"router-service","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}]}}
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+  creationTimestamp: "2026-07-03T03:51:57Z"
+  generation: 1
+  name: codespace
+  namespace: default
+  resourceVersion: "29767"
+  uid: dd4b5236-d388-48a0-9851-f3067f28984a
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: main-sandbox-service
+            port:
+              number: 80
+        path: /api/sandbox
+        pathType: Prefix
+  - http:
+      paths:
+      - backend:
+          service:
+            name: ai-service
+            port:
+              number: 80
+        path: /api/ai
+        pathType: Prefix
+  - host: '*.preview.localhost'
+    http:
+      paths:
+      - backend:
+          service:
+            name: router-service
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  - host: '*.agent.localhost'
+    http:
+      paths:
+      - backend:
+          service:
+            name: router-service
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  - http:
+      paths:
+      - backend:
+          service:
+            name: router-service
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 172.19.0.5

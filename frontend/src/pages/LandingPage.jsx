@@ -33,6 +33,25 @@ export default function LandingPage() {
       setLoadingStep('Connecting to sandbox…');
       setSandbox(data.sandboxId, data.previewUrl);
 
+      setLoadingStep('Waiting for environment to start…');
+      let isReady = false;
+      for (let i = 0; i < 30; i++) {
+        try {
+          const res = await fetch(`http://${data.sandboxId}.agent.localhost/`);
+          if (res.ok) {
+            isReady = true;
+            break;
+          }
+        } catch (e) {
+          // Ignore fetch errors while waiting
+        }
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+
+      if (!isReady) {
+        throw new Error("Sandbox failed to start in time");
+      }
+
       setLoadingStep('Ready! Opening workspace…');
       await new Promise((r) => setTimeout(r, 600));
 

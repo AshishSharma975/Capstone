@@ -32,7 +32,6 @@ function getProxy(sandboxId){
         proxies[sandboxId] = createProxyMiddleware({
             target: `http://sandbox-service-${sandboxId}`,
             changeOrigin: true,
-            ws: true,
         });
     }
     return proxies[sandboxId];
@@ -43,7 +42,6 @@ function getAgentProxy(sandboxId){
         agentProxies[sandboxId] = createProxyMiddleware({
             target: `http://sandbox-service-${sandboxId}:8080`,
             changeOrigin: true,
-            ws: true,
         });
     }
     return agentProxies[sandboxId];
@@ -51,6 +49,7 @@ function getAgentProxy(sandboxId){
 
 app.use((req, res, next) => {
   const host = req.headers.host;
+  console.log("EXPRESS MIDDLEWARE HIT FOR HOST:", host, "URL:", req.url, "HEADERS:", req.headers.upgrade);
   const sandboxId = host.split(".")[0];
    if(host.split(".")[1]==="agent"){
     return getAgentProxy(sandboxId)(req, res, next);
@@ -64,23 +63,24 @@ app.use((req, res, next) => {
 
 });
 
+import httpProxy from "http-proxy";
+const wsProxy = httpProxy.createProxyServer({ ws: true, changeOrigin: true });
+
+wsProxy.on('error', (err, req, socket) => {
+  socket.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
+});
+
 // WebSocket upgrade handlers (called from server.js)
 app.agentUpgrade = (req, socket, head, sandboxId) => {
-  const proxy = getAgentProxy(sandboxId);
-  if (proxy.upgrade) {
-    proxy.upgrade(req, socket, head);
-  } else {
-    socket.destroy();
-  }
+  wsProxy.ws(req, socket, head, {
+    target: `http://sandbox-service-${sandboxId}:8080`
+  });
 };
 
 app.previewUpgrade = (req, socket, head, sandboxId) => {
-  const proxy = getProxy(sandboxId);
-  if (proxy.upgrade) {
-    proxy.upgrade(req, socket, head);
-  } else {
-    socket.destroy();
-  }
+  wsProxy.ws(req, socket, head, {
+    target: `http://sandbox-service-${sandboxId}:80`
+  });
 };
 
 export default app;

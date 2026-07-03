@@ -38,8 +38,13 @@ app.post("/api/sandbox/start", async (req, res) => {
     } catch (error) {
         console.error("FULL ERROR =>", error);
 
+        let errorMessage = error.message;
+        if (errorMessage && (errorMessage.includes('actively refused') || errorMessage.includes('ECONNREFUSED') || errorMessage.includes('connectex'))) {
+            errorMessage = "Kubernetes cluster is not running. Please start Docker Desktop before starting the sandbox.";
+        }
+
         return res.status(500).json({
-            message: error.message
+            message: errorMessage
         });
     }
 });
