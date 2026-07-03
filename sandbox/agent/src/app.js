@@ -7,7 +7,7 @@ import http from "http";
 import pty from "node-pty";
 import os from "os";
 
-const WORKING_DIR = '/workspace'
+const WORKING_DIR = process.env.WORKING_DIR || (os.platform() === 'win32' ? process.cwd() : '/workspace');
 
 
 const app = express();
@@ -46,7 +46,8 @@ app.get("/",(req,res)=>{
 
 
 
-const shell = process.env.SHELL || "/bin/bash";
+const osPlatform = os.platform();
+const shell = osPlatform === 'win32' ? 'powershell.exe' : (process.env.SHELL || "/bin/bash");
 
 const ptyProcess = pty.spawn(shell, [], {
     name: "xterm-256color",
