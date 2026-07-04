@@ -6,6 +6,7 @@ const agentRouter = Router();
 
 
 agentRouter.post("/invoke", async (req, res) => {
+  let pingInterval;
   try {
     console.log("STEP 1: Request received");
 
@@ -23,6 +24,10 @@ agentRouter.post("/invoke", async (req, res) => {
 
     // Optional: send an initial event so Postman knows the stream started
     res.write(`data: ${JSON.stringify({ type: "start", message: "Agent started..." })}\n\n`);
+
+    pingInterval = setInterval(() => {
+      res.write(`data: ${JSON.stringify({ type: "ping" })}\n\n`);
+    }, 15000);
 
     const result = await codeAgent.invoke(
       {
@@ -49,11 +54,13 @@ agentRouter.post("/invoke", async (req, res) => {
     );
 
     console.log("STEP 3: After invoke");
+    clearInterval(pingInterval);
     // Send final result and close stream
     res.write(`data: ${JSON.stringify({ type: "complete", result: result.messages })}\n\n`);
     return res.end();
   } catch (error) {
     console.error("STEP 4 ERROR:", error);
+    if (pingInterval) clearInterval(pingInterval);
 
     // Stream is already open, so we must send error as SSE event rather than JSON
     if (!res.headersSent) {

@@ -115,6 +115,9 @@ function handleSSEEvent(event, { onStart, onStep, onComplete, onError }) {
     case 'error':
       if (onError) onError(new Error(event.message));
       break;
+    case 'ping':
+      // Just keep-alive, ignore
+      break;
     default:
       // Unknown event type — treat as step
       onStep?.(event);

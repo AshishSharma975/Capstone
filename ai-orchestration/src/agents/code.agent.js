@@ -9,7 +9,7 @@ import {
 } from "./tools.js";
 
 const model = new ChatMistralAI({
-  model: "open-mistral-nemo",
+  model: "mistral-small-latest",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
   maxTokens: 4096,
