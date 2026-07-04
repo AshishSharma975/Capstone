@@ -68,7 +68,7 @@ export async function invokeAI({
 
           try {
             const event = JSON.parse(jsonStr);
-            handleSSEEvent(event, { onStart, onStep, onComplete });
+            handleSSEEvent(event, { onStart, onStep, onComplete, onError });
           } catch {
             // Ignore malformed JSON chunks
           }
@@ -84,7 +84,7 @@ export async function invokeAI({
         if (!jsonStr || jsonStr === '[DONE]') continue;
         try {
           const event = JSON.parse(jsonStr);
-          handleSSEEvent(event, { onStart, onStep, onComplete });
+          handleSSEEvent(event, { onStart, onStep, onComplete, onError });
         } catch {
           // ignore
         }
@@ -101,7 +101,7 @@ export async function invokeAI({
  * @param {object} event
  * @param {object} callbacks
  */
-function handleSSEEvent(event, { onStart, onStep, onComplete }) {
+function handleSSEEvent(event, { onStart, onStep, onComplete, onError }) {
   switch (event.type) {
     case 'start':
       onStart?.(event);
@@ -111,6 +111,9 @@ function handleSSEEvent(event, { onStart, onStep, onComplete }) {
       break;
     case 'complete':
       onComplete?.(event.result ?? event);
+      break;
+    case 'error':
+      if (onError) onError(new Error(event.message));
       break;
     default:
       // Unknown event type — treat as step

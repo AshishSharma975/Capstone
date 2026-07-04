@@ -9,11 +9,12 @@ import {
 } from "./tools.js";
 
 const model = new ChatMistralAI({
-  model: "mistral-large-latest",
+  model: "open-mistral-nemo",
   apiKey: process.env.MISTRAL_API_KEY,
   temperature: 0,
   maxTokens: 4096,
   timeout: 600000, // 10 minutes
+  maxRetries: 10,
 });
 
 const codeAgent = createAgent({
@@ -60,7 +61,6 @@ You have access to three tools:
    - Avoid generic/templated "AI-default" look: avoid raw unstyled lists, plain colored rectangles, or basic Arial text unless specifically requested. Use SVGs, emojis, or CSS shapes to make graphics and components look beautiful.
    - For all code generated, ENSURE it is wrapped in error boundaries and handles missing props properly so the app does not crash to a white screen.
    - NEVER wrap App.jsx with <BrowserRouter> or <Router>. The App component is ALREADY wrapped in <BrowserRouter> inside main.jsx. If you need routing, just use <Routes> and <Route> directly in App.jsx.
-   - Important: When adding new UI components, remember to export them correctly and ensure any imports point to the correct file path.
    - Include sensible micro-interactions (transitions, hover effects) using CSS.
    - Have clean, semantic HTML structure.
    - ALWAYS write robust code that avoids crashing on mount. If possible, add simple error boundary logic or ensure useEffects check for null refs. Avoid throwing fatal unhandled errors.

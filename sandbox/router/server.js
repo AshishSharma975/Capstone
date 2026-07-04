@@ -9,8 +9,26 @@ const server = http.createServer(app);
 server.on("upgrade", (req, socket, head) => {
   const host = req.headers.host;
   console.log("UPGRADE EVENT RECEIVED FOR HOST:", host, "URL:", req.url);
-  const sandboxId = host.split(".")[0];
-  const subdomain = host.split(".")[1];
+  
+  let sandboxId;
+  let subdomain;
+  
+  const urlParts = req.url.split('?');
+  const searchParams = new URLSearchParams(urlParts[1] || '');
+  
+  if (searchParams.has('sandboxId')) {
+    sandboxId = searchParams.get('sandboxId');
+    if (req.url.startsWith('/api/agent-ws')) {
+      subdomain = 'agent';
+      req.url = req.url.replace('/api/agent-ws', '');
+    } else if (req.url.startsWith('/api/preview-ws')) {
+      subdomain = 'preview';
+      req.url = req.url.replace('/api/preview-ws', '');
+    }
+  } else {
+    sandboxId = host.split(".")[0];
+    subdomain = host.split(".")[1];
+  }
   
   if (subdomain === "agent") {
     console.log("Routing agent upgrade to", sandboxId);

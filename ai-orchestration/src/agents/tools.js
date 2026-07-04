@@ -8,6 +8,7 @@ const BASE_URL = process.env.ROUTER_URL || "http://127.0.0.1";
 
 export const listFiles = tool(
   async ({},config) => {
+    await new Promise(r => setTimeout(r, 2000));
     if (config?.context?.writer) {
       config.context.writer.write("Listing all project files...");
     }
@@ -44,6 +45,7 @@ export const listFiles = tool(
 
 export const readFiles = tool(
   async (input,config) => {
+    await new Promise(r => setTimeout(r, 2000));
     if (config?.context?.writer) {
       const fileNames = input?.files ? input.files.join(", ") : "files";
       config.context.writer.write(`Reading ${fileNames}...`);
@@ -123,6 +125,7 @@ async function updateFilesDirect(files,config) {
 
 export const updateFilesTool = tool(
   async ({ files },config) => {
+    await new Promise(r => setTimeout(r, 2000));
     try {
       console.log("===============");
       console.log("UPDATE FILES TOOL");
@@ -130,6 +133,11 @@ export const updateFilesTool = tool(
       console.log("===============");
 
       const result = await updateFilesDirect(files,config);
+
+      if (config?.context?.writer) {
+        config.context.writer.write("Waiting 60 seconds to bypass Mistral API rate limit...");
+      }
+      await new Promise(r => setTimeout(r, 60000));
 
       return JSON.stringify(result);
     } catch (error) {

@@ -49,18 +49,36 @@ function getAgentProxy(sandboxId){
 
 app.use((req, res, next) => {
   const host = req.headers.host;
-  console.log("EXPRESS MIDDLEWARE HIT FOR HOST:", host, "URL:", req.url, "HEADERS:", req.headers.upgrade);
-  const sandboxId = host.split(".")[0];
-   if(host.split(".")[1]==="agent"){
-    return getAgentProxy(sandboxId)(req, res, next);
-   }else if (host.split(".")[1]==="preview"){
-    return getProxy(sandboxId)(req, res, next);
-   }
-   return res.status(404).json({
-        message: "Invalid host name",
-        status:404
-   });
+  const xSandboxId = req.headers['x-sandbox-id'];
+  
+  let sandboxId;
+  let type;
 
+  if (xSandboxId) {
+    sandboxId = xSandboxId;
+    if (req.url.startsWith('/api/agent')) {
+      type = 'agent';
+      req.url = req.url.replace('/api/agent', '');
+    } else {
+      type = 'preview';
+    }
+  } else {
+    sandboxId = host.split(".")[0];
+    type = host.split(".")[1];
+  }
+
+  console.log("ROUTER MIDDLEWARE HIT:", { host, xSandboxId, url: req.url, sandboxId, type });
+
+  if (type === "agent") {
+    return getAgentProxy(sandboxId)(req, res, next);
+  } else if (type === "preview") {
+    return getProxy(sandboxId)(req, res, next);
+  }
+  
+  return res.status(404).json({
+    message: "Invalid host name or sandbox id",
+    status: 404
+  });
 });
 
 import httpProxy from "http-proxy";
