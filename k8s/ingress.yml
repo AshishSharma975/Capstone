@@ -26,6 +26,15 @@ spec:
               number: 80
   - http:
       paths:
+      - path: /api/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 80
+  - http:
+      paths:
       - path: /api/ai
         pathType: Prefix
         backend:
