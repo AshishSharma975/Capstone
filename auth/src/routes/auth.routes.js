@@ -7,10 +7,10 @@ const router = Router();
 
 
 
-router.get("/google", passport.authenticate('google',{scope:['profile','email']}));
+router.get("/google", passport.authenticate('google',{scope:['profile','email'], session: false}));
 
 
-router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/'}),async(req,res)=>{
+router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/', session: false}),async(req,res)=>{
 try{
     const {id,displayName,emails,photos} = req.user;
     let user = await User.findOne({googleId:id})
@@ -36,7 +36,7 @@ try{
         secure:true,
         sameSite:'strict'
     })
-    res.redirect('/')
+    res.redirect(process.env.CLIENT_URL || 'http://localhost:5173/')
 }catch(error){
     console.log(error)
     res.status(500).json({success:false,message:"Internal Server Error",error:error.message})
