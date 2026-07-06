@@ -135,9 +135,9 @@ export const updateFilesTool = tool(
       const result = await updateFilesDirect(files,config);
 
       if (config?.context?.writer) {
-        config.context.writer.write("Waiting 60 seconds to bypass Mistral API rate limit...");
+        config.context.writer.write("Waiting 2 seconds to respect Mistral API rate limit...");
       }
-      await new Promise(r => setTimeout(r, 60000));
+      await new Promise(r => setTimeout(r, 2000));
 
       return JSON.stringify(result);
     } catch (error) {

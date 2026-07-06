@@ -186,7 +186,13 @@ app.patch("/update-files", async (req, res) => {
                 // ... same inside loop, but we also check if package.json was updated
                 console.log("UPDATE =", update);
                 const file = update.file || update.path || update.name || update.filename;
-                const content = update.content || "";
+                let content = update.content || "";
+                
+                // Fix double-escaped newlines/tabs from LLM hallucination
+                if (typeof content === 'string') {
+                    content = content.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+                }
+
                 if (!file) return { error: "Missing file/path/name/filename", received: update };
                 const filePath = path.join(WORKING_DIR, file);
                 try {
@@ -264,7 +270,12 @@ app.post("/create-files", async (req, res) => {
                     fileObj.name ||
                     fileObj.filename;
 
-                const content = fileObj.content || "";
+                let content = fileObj.content || "";
+
+                // Fix double-escaped newlines/tabs from LLM hallucination
+                if (typeof content === 'string') {
+                    content = content.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+                }
 
                 if (!file || typeof file !== "string") {
                     return {

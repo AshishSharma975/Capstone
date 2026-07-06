@@ -22,8 +22,13 @@ agentRouter.post("/invoke", async (req, res) => {
     // Disable socket timeout to prevent the connection from closing during long LLM tasks
     req.socket.setTimeout(0);
 
+    if (res.flushHeaders) {
+      res.flushHeaders();
+    }
+
     // Optional: send an initial event so Postman knows the stream started
     res.write(`data: ${JSON.stringify({ type: "start", message: "Agent started..." })}\n\n`);
+    if (res.flush) res.flush();
 
     pingInterval = setInterval(() => {
       res.write(`data: ${JSON.stringify({ type: "ping" })}\n\n`);
@@ -47,6 +52,7 @@ agentRouter.post("/invoke", async (req, res) => {
             write: (stepMessage) => {
               // Send the tool progress step as an SSE event
               res.write(`data: ${JSON.stringify({ type: "step", message: stepMessage })}\n\n`);
+              if (res.flush) res.flush();
             }
           }
         }
