@@ -41,6 +41,7 @@ build:
 
 manifests:
   rawYaml:
+    - k8s/secrets.yml
     - k8s/auth-deployment.yml
     - k8s/auth-service.yml
     - k8s/ai-deployment.yml
