@@ -1,3 +1,4 @@
+import "dotenv/config.js";
 import http from "http";
 import httpProxy from "http-proxy";
 import app from "./src/app.js";

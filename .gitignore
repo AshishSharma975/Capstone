@@ -1,3 +1,5 @@
-﻿sandbox/template/template.tar
+sandbox/template/template.tar
 
 k8s/secrets.yml
+.env
+**/.env
