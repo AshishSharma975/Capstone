@@ -5,6 +5,8 @@ import { createPod } from "./kubernetes/pod.js";
 import { createService } from "./kubernetes/service.js";
 import { cleanupOldSandboxes } from "./kubernetes/cleanup.js";
 import {v7 as uuid} from "uuid"
+import { createSandboxKey } from "./config/redis.js";
+
 
 const app = express();
 
@@ -23,13 +25,12 @@ app.get("/api/sandbox/health", (req, res) => {
 app.post("/api/sandbox/start", async (req, res) => {
     try {
         const sandboxId = uuid();
-
-        // Clean up old sandboxes synchronously before creating new ones to avoid race conditions
         await cleanupOldSandboxes(0).catch(err => console.error("Cleanup failed:", err));
 
         await Promise.all([
             createPod(sandboxId),
-            createService(sandboxId)
+            createService(sandboxId),
+            createSandboxKey(sandboxId)
         ]);
 
         console.log("sandbox environment is created successfully");
