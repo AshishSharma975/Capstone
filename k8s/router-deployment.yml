@@ -35,7 +35,13 @@ spec:
             path: /api/status/readyz
             port: 3001
           initialDelaySeconds: 30
-          timeoutSeconds: 10      
+          timeoutSeconds: 10     
+        env:
+          - name: REDIS_URL
+            valueFrom:
+              secretKeyRef:
+                name: redis-secret
+                key: REDIS_URL    
         ports:
         - containerPort:  3001
           name:  router

@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import { refreshTTL } from "./config/redis.js";
 
 const app = express();
 
@@ -47,7 +48,7 @@ function getAgentProxy(sandboxId){
     return agentProxies[sandboxId];
 }
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const host = req.headers.host;
   const xSandboxId = req.headers['x-sandbox-id'];
   
@@ -65,6 +66,12 @@ app.use((req, res, next) => {
   } else {
     sandboxId = host.split(".")[0];
     type = host.split(".")[1];
+  }
+
+  try {
+    await refreshTTL(sandboxId);
+  } catch (error) {
+    console.error("Failed to refresh TTL:", error);
   }
 
   console.log("ROUTER MIDDLEWARE HIT:", { host, xSandboxId, url: req.url, sandboxId, type });
