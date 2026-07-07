@@ -40,3 +40,18 @@ export const createService = async (sandboxId) => {
 
     return response;   
 }   
+
+export async function deleteService(sandboxId) {
+    const serviceManifest = {
+        metadata: {
+            name: `sandbox-service-${sandboxId}`,
+        },
+    };
+
+    const response = await k8sCoreV1Api.deleteNamespacedService({
+        namespace: "default",
+        body: serviceManifest
+    });
+
+    return response;
+}
