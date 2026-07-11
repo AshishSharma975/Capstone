@@ -61,6 +61,12 @@ spec:
               name: jwt-secret
               key: JWT_SECRET
 
+        - name: RABBITMQ_URL
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: RABBITMQ_URL
+              
         ports:
         - containerPort:  3000
           name:  auth-http
