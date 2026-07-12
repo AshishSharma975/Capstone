@@ -33,6 +33,16 @@ try{
             },
             userId:user._id
         })
+    } else {
+        await sendAuthNotification({
+            type:'USER_LOGGED_IN',
+            data: {
+                name:user.name,
+                email:user.email,
+                avatar:user.avatar,
+            },
+            userId:user._id
+        })
     }
     const payload = {
         id:user._id,
