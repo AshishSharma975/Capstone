@@ -10,7 +10,15 @@ build:
       sync:
         infer:
           - "src/**"
-          
+
+    - image: notification
+      context: notification
+      docker:
+        dockerfile: dockerfile
+      sync:
+        infer:
+          - "src/**"
+
     - image: ai-orchestration
       context: ai-orchestration
       docker:
@@ -51,3 +59,5 @@ manifests:
     - k8s/router-service.yml
     - k8s/sandbox-deployment.yml
     - k8s/sandbox-service.yml
+    - k8s/notification.deployment.yml
+    - k8s/notification-service.yml
