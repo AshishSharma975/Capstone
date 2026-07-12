@@ -2,6 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import { sendAuthNotification } from "../config/mq.js";
 const router = Router();
 
 
@@ -22,6 +23,16 @@ try{
             avatar:photos[0].value
         })
         await user.save()
+        // sendNotification
+        await sendAuthNotification({
+            type:'USER_CREATED',
+            data: {
+                name:user.name,
+                email:user.email,
+                avatar:user.avatar,
+            },
+            userId:user._id
+        })
     }
     const payload = {
         id:user._id,

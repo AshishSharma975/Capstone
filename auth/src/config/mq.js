@@ -11,3 +11,8 @@ channel.assertQueue(QUEUE, {durable: true});
 function publishToQueue(queue, content){
     channel.sendToQueue(queue, Buffer.from(JSON.stringify(content)), {persistent: true});
 }
+
+export async function sendAuthNotification(message) {
+    channel.sendToQueue(QUEUE, Buffer.from(JSON.stringify(message)), { persistent: true });
+    console.log('Notification sent:', message);
+}
