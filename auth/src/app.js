@@ -26,7 +26,7 @@ passport.use(new GoogleStrategy({
 
 
 app.get("/_status/healthz",(req,res)=>{
-    res.status(200).send("OK")
+    res.status(200).send("OK...")
 })
 app.get("/_status/readyz",(req,res)=>{
     res.status(200).send("OK")
