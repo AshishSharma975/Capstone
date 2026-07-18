@@ -60,7 +60,7 @@ try{
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173/')
 }catch(error){
     console.log(error)
-    res.status(500).json({success:false,message:"Internal Server Error",error:error.message})
+    res.status(500).json({success:false,message:"there is the Internal Server Error",error:error.message})
 }    
 })
 export default router
