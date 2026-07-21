@@ -1,13 +1,8 @@
 import express from "express"
 import morgan from "morgan"
 import axios from "axios"
-import { createPod } from "./kubernetes/pod.js";
-import { createService } from "./kubernetes/service.js";
-import { cleanupOldSandboxes } from "./kubernetes/cleanup.js";
-import {v7 as uuid} from "uuid"
-import { createSandboxKey } from "./config/redis.js";
 import cookieParser from "cookie-parser";
-
+import sandboxRouter from './routes/sandbox.routes.js'
 const app = express();
 
 app.use(morgan('dev'));
@@ -24,38 +19,6 @@ app.get("/api/sandbox/health", (req, res) => {
     });
 }); 
 
-app.post("/api/sandbox/start", async (req, res) => {
-    try {
-        const sandboxId = uuid();
-        await cleanupOldSandboxes(0).catch(err => console.error("Cleanup failed:", err));
-
-        await Promise.all([
-            createPod(sandboxId),
-            createService(sandboxId),
-            createSandboxKey(sandboxId)
-        ]);
-
-        console.log("sandbox environment is created successfully");
-
-        return res.status(201).json({
-            message: "sandbox environment is created successfully",
-            sandboxId,
-            previewUrl: `http://${sandboxId}.preview.localhost`
-        });
-
-    } catch (error) {
-        console.error("FULL ERROR =>", error);
-
-        let errorMessage = error.message;
-        if (errorMessage && (errorMessage.includes('actively refused') || errorMessage.includes('ECONNREFUSED') || errorMessage.includes('connectex'))) {
-            errorMessage = "Kubernetes cluster is not running. Please start Docker Desktop before starting the sandbox.";
-        }
-
-        return res.status(500).json({
-            message: errorMessage
-        });
-    }
-});
 
 // ── Agent proxy routes ────────────────────────────────────────────────────────
 // These routes forward requests to the correct sandbox pod using x-sandbox-id.
@@ -97,6 +60,6 @@ app.get('/api/agent/read-files', (req, res) => proxyToAgent(req, res, '/read-fil
 app.patch('/api/agent/update-files', (req, res) => proxyToAgent(req, res, '/update-files'));
 app.post('/api/agent/create-files', (req, res) => proxyToAgent(req, res, '/create-files'));
 
-
+app.use('/api/sandbox',sandboxRouter)
 export default app;
 
