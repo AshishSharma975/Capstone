@@ -1,4 +1,4 @@
-import { verifyToken } from "../models/utils";
+import { verifyToken } from "../models/utils.js";
 
 export function authMiddleware(req,res,next) {
     try{
