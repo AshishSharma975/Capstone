@@ -10,6 +10,11 @@ export default defineConfig({
       
     },
     proxy:{
+      "/api/auth":{
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false,
+      },
       "/api/ai":{
         target: "http://localhost:6000",
         changeOrigin: true,
