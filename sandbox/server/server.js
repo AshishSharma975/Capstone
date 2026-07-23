@@ -2,6 +2,8 @@ import "dotenv/config.js";
 import http from "http";
 import httpProxy from "http-proxy";
 import app from "./src/app.js";
+import connectDB from "./src/config/db.js";
+connectDB();
 
 const PORT = 5000;
 const server = http.createServer(app);
