@@ -229,6 +229,8 @@ app.patch("/update-files", async (req, res) => {
             });
         }
 
+        io.emit("file-changed");
+
         return res.status(200).json({
             message: "File update results",
             results
@@ -312,6 +314,8 @@ app.post("/create-files", async (req, res) => {
                 }
             })
         );
+
+        io.emit("file-changed");
 
         return res.status(200).json({
             message: "File creation completed",

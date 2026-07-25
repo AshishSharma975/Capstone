@@ -1,6 +1,6 @@
 import { k8sCoreV1Api } from "./config.js";
 
-export async function createPod(sandboxId) {
+export async function createPod(sandboxId, projectId) {
     const podManifest = {
         metadata: {
             name: `sandbox-pod-${sandboxId}`,
@@ -57,12 +57,16 @@ export async function createPod(sandboxId) {
                     name: "agent-container",
                     image: "agent:v4",
                     imagePullPolicy: "IfNotPresent",
-
                     ports: [
                         {
                             containerPort: 8080,
                             name: "http",
                         },
+                    ],
+
+                    env: [
+                        { name: "PROJECT_ID", value: projectId || "" },
+                        { name: "SYNC_SERVER_URL", value: "http://host.docker.internal:5000" } 
                     ],
 
                     volumeMounts: [
@@ -80,6 +84,35 @@ export async function createPod(sandboxId) {
                         limits: {
                             cpu: "500m",
                             memory: "400Mi",
+                        },
+                    },
+                },
+
+                {
+                    name: "sync-agent-container",
+                    image: "sync-agent",
+                    imagePullPolicy: "IfNotPresent",
+
+                    env: [
+                        { name: "PROJECT_ID", value: projectId || "" },
+                        { name: "SYNC_SERVER_URL", value: "http://host.docker.internal:5000" } 
+                    ],
+
+                    volumeMounts: [
+                        {
+                            name: "workspace-volume",
+                            mountPath: "/workspace",
+                        },
+                    ],
+
+                    resources: {
+                        requests: {
+                            cpu: "100m",
+                            memory: "100Mi",
+                        },
+                        limits: {
+                            cpu: "250m",
+                            memory: "250Mi",
                         },
                     },
                 },

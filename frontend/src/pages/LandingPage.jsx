@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Code2, Terminal, Globe, Sparkles, ArrowRight } from 'lucide-react';
 import useAppStore from '../store/useAppStore';
-import { startSandbox } from '../services/sandboxApi';
+import { startSandbox, getProjects } from '../services/sandboxApi';
 import Spinner from '../components/UI/Spinner';
 import ToastContainer from '../components/UI/Toast';
+import { useEffect } from 'react';
 
 const FEATURES = [
   { icon: Code2, label: 'AI Code Generation', desc: 'Describe and build' },
@@ -21,14 +22,22 @@ export default function LandingPage() {
   const { setSandbox, addToast } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
+  const [projects, setProjects] = useState([]);
 
-  const handleStart = async () => {
+  useEffect(() => {
+    // Fetch user projects on mount
+    getProjects().then(data => {
+      setProjects(data);
+    }).catch(err => console.error("Failed to fetch projects", err));
+  }, []);
+
+  const handleStart = async (projectId = null) => {
     setIsLoading(true);
     setLoadingStep('Initialising sandbox environment…');
 
     try {
       setLoadingStep('Provisioning container…');
-      const data = await startSandbox();
+      const data = await startSandbox(projectId);
 
       setLoadingStep('Connecting to sandbox…');
       setSandbox(data.sandboxId, data.previewUrl);
@@ -153,7 +162,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            onClick={handleStart}
+            onClick={() => handleStart()}
             disabled={isLoading}
             whileHover={!isLoading ? { scale: 1.02 } : {}}
             whileTap={!isLoading ? { scale: 0.98 } : {}}
@@ -207,6 +216,38 @@ export default function LandingPage() {
         >
           Sandbox spins up in seconds. No setup required.
         </motion.p>
+        
+        {/* My Projects Section */}
+        {projects.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-8"
+          >
+            <h3 style={{ color: 'var(--text-primary)', fontSize: '18px', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>
+              My Projects
+            </h3>
+            <div className="flex flex-col gap-3">
+              {projects.map((proj) => (
+                <div
+                  key={proj._id}
+                  onClick={() => !isLoading && handleStart(proj._id)}
+                  className="glass p-4 rounded-xl flex justify-between items-center cursor-pointer transition-all hover:bg-white/5"
+                  style={{ border: '1px solid var(--border)' }}
+                >
+                  <div>
+                    <div style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{proj.title}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
+                      {new Date(proj.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <ArrowRight size={16} style={{ color: 'var(--accent)' }} />
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </motion.div>
 
       <ToastContainer />

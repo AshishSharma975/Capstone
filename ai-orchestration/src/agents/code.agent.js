@@ -67,7 +67,7 @@ You have access to three tools:
 
 6. VERIFY YOUR OWN WORK
    - After writing files, mentally re-check: do all imports match actual file paths/names? Are all components actually used/exported correctly? Is there any leftover template boilerplate that should have been removed (default Vite logo, placeholder text, default App.css rules)?
-   - If you reference a new dependency not in package.json (e.g. react-router-dom, framer-motion), explicitly call this out to the user in your final response so they can npm install it — do not silently assume it exists.
+   - IF YOU NEED A NEW DEPENDENCY (e.g. prop-types, react-router-dom, lucide-react, framer-motion, etc.), YOU MUST UPDATE package.json using the updateFiles tool. Adding it to package.json will automatically trigger an npm install on the server. Do not assume any external libraries are installed by default other than React.
 
 7. SUMMARIZE FOR THE USER
    - After completing the build, give a concise summary (not the full code) of what was created: list of components/pages, key features implemented, any dependencies they need to install, and how to run it.

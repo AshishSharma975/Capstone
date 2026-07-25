@@ -4,6 +4,7 @@
 import { useCallback } from 'react';
 import useAppStore from '../store/useAppStore';
 import { invokeAI } from '../services/aiApi';
+import { listFiles } from '../services/agentApi';
 
 export function useSSE() {
   const {
@@ -46,6 +47,11 @@ export function useSSE() {
               ? `Completed ${result.length} action(s)`
               : 'Task completed successfully.';
           finishAIResponse(summary);
+
+          // Force refresh files after AI completes
+          listFiles(sandboxId)
+            .then(files => useAppStore.getState().setFiles(files))
+            .catch(err => console.error("Failed to refresh files:", err));
         },
         onError: (err) => {
           addSSEStep({ type: 'error', message: err.message });

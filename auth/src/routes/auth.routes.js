@@ -50,7 +50,7 @@ try{
         name:user.name,
     }
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'supersecretkey123', {
-        expiresIn:'1h'
+        expiresIn:'7d'
     })
     res.cookie('token',token,{
         httpOnly:true,

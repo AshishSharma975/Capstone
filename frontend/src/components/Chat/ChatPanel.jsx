@@ -12,12 +12,13 @@ import useAppStore from '../../store/useAppStore';
 
 export default function ChatPanel() {
   const chatHistory = useAppStore(state => state.chatHistory);
+  const sseProgress = useAppStore(state => state.sseProgress);
   const bottomRef = useRef(null);
 
-  // Auto-scroll to latest message
+  // Auto-scroll to latest message or SSE step
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatHistory.length]);
+  }, [chatHistory.length, sseProgress.length]);
 
   return (
     <div

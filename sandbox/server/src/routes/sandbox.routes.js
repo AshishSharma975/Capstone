@@ -7,6 +7,7 @@ import {v7 as uuid} from "uuid"
 import { createSandboxKey } from "../config/redis.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import project from "../models/project.model.js";
+import ProjectFile from "../models/projectFile.model.js";
 
 const router = Router();
 
@@ -68,7 +69,7 @@ router.post("/start", authMiddleware, async (req, res) => {
         await cleanupOldSandboxes(0).catch(err => console.error("Cleanup failed:", err));
 
         await Promise.all([
-            createPod(sandboxId),
+            createPod(sandboxId, existingProject._id.toString()),
             createService(sandboxId),
             createSandboxKey(sandboxId)
         ]);
@@ -96,5 +97,46 @@ router.post("/start", authMiddleware, async (req, res) => {
         });
     }
 });
+
+// Sync Routes for Sync-Agent
+router.post("/sync/upload", async (req, res) => {
+    try {
+        const { projectId, filePath, content, isDeleted } = req.body;
+        if (!projectId || !filePath) {
+            return res.status(400).json({ message: "projectId and filePath are required" });
+        }
+
+        if (isDeleted) {
+            await ProjectFile.findOneAndUpdate(
+                { projectId, filePath },
+                { isDeleted: true },
+                { upsert: true }
+            );
+        } else {
+            await ProjectFile.findOneAndUpdate(
+                { projectId, filePath },
+                { content, isDeleted: false },
+                { upsert: true }
+            );
+        }
+
+        return res.status(200).json({ message: "Synced successfully" });
+    } catch (error) {
+        console.error("Sync Upload Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+router.get("/sync/download/:projectId", async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const files = await ProjectFile.find({ projectId, isDeleted: false });
+        return res.status(200).json({ files });
+    } catch (error) {
+        console.error("Sync Download Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 
 export default router;

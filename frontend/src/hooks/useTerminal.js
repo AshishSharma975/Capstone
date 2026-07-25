@@ -10,6 +10,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { io } from 'socket.io-client';
 import useAppStore from '../store/useAppStore';
+import { listFiles } from '../services/agentApi';
 
 export function useTerminal(containerRef, sandboxId) {
   const termRef = useRef(null);
@@ -53,6 +54,17 @@ export function useTerminal(containerRef, sandboxId) {
     socket.on('terminal-output', (data) => {
       termRef.current?.write(data);
     });
+
+    // Auto-refresh file tree when agent modifies files
+    socket.on('file-changed', async () => {
+      try {
+        const files = await listFiles(sandboxId);
+        useAppStore.getState().setFiles(files);
+      } catch (e) {
+        console.error("Failed to refresh file tree:", e);
+      }
+    });
+
   }, [sandboxId, containerRef, setTerminalConnected]);
 
   const initTerminal = useCallback(() => {

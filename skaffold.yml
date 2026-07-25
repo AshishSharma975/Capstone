@@ -37,6 +37,11 @@ build:
       docker:
         dockerfile: dockerfile
 
+    - image: sync-agent
+      context: sandbox/sync-agent
+      docker:
+        dockerfile: Dockerfile
+
     - image: main-sandbox
       context: sandbox/server
       docker:
