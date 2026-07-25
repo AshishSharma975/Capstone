@@ -54,8 +54,8 @@ try{
     })
     res.cookie('token',token,{
         httpOnly:true,
-        secure:true,
-        sameSite:'strict'
+        secure: false,
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
     })
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173/')
 }catch(error){

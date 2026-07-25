@@ -1,4 +1,5 @@
 import "dotenv/config";
+console.log("JWT_SECRET IS:", process.env.JWT_SECRET);
 import express from "express"
 import morgan from "morgan"
 import jwt from "jsonwebtoken"
