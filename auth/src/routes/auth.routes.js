@@ -49,7 +49,7 @@ try{
         email:user.email,
         name:user.name,
     }
-    const token = jwt.sign(payload,process.env.JWT_SECRET,{
+    const token = jwt.sign(payload, process.env.JWT_SECRET || 'supersecretkey123', {
         expiresIn:'1h'
     })
     res.cookie('token',token,{

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import fs from "fs";
 import { createPod } from "../kubernetes/pod.js";
 import { createService } from "../kubernetes/service.js";
 import { cleanupOldSandboxes } from "../kubernetes/cleanup.js";
@@ -44,9 +45,19 @@ router.get("/projects",authMiddleware,async(req,res)=>{
 
 router.post("/start", authMiddleware, async (req, res) => {
     try {
-     const projectId = req.body.projectId;
+     const projectId = req.body?.projectId;
 
-     const existingProject = await project.findOne({_id:projectId,user: req.user.id})
+     let existingProject = null;
+     if (projectId) {
+         existingProject = await project.findOne({_id:projectId,user: req.user.id});
+     } else {
+         // Auto-create a default project if none is specified
+         existingProject = new project({
+             title: "Default Project",
+             user: req.user.id
+         });
+         await existingProject.save();
+     }
      
      if(!existingProject){
         return res.status(400).json({message:'This project does not belong to you.'})
@@ -72,6 +83,7 @@ router.post("/start", authMiddleware, async (req, res) => {
 
     } catch (error) {
         console.error("FULL ERROR =>", error);
+        try { fs.appendFileSync('error.log', '\n' + new Date().toISOString() + ' ERROR: ' + (error.stack || error.message) + '\n'); } catch (e) {}
 
         let errorMessage = error.message;
         if (errorMessage && (errorMessage.includes('actively refused') || errorMessage.includes('ECONNREFUSED') || errorMessage.includes('connectex'))) {
@@ -79,7 +91,8 @@ router.post("/start", authMiddleware, async (req, res) => {
         }
 
         return res.status(500).json({
-            message: errorMessage
+            message: errorMessage,
+            stack: error.message
         });
     }
 });

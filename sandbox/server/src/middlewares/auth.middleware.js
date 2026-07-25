@@ -18,7 +18,8 @@ export function authMiddleware(req,res,next) {
 
         next()
     }catch(error){
-        console.log(error)
-        return res.status(500).json({message:'Internal Server Error'})
+        console.log("AUTH ERROR =>", error);
+        import('fs').then(fs => fs.appendFileSync('auth_error.log', '\n' + new Date().toISOString() + ' ERROR: ' + (error.stack || error.message) + '\n')).catch(()=>{});
+        return res.status(500).json({message:'Internal Server Error from Auth'})
     }
 }
