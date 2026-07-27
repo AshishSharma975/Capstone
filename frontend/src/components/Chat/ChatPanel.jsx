@@ -17,8 +17,11 @@ export default function ChatPanel() {
 
   // Auto-scroll to latest message or SSE step
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatHistory.length, sseProgress.length]);
+    const timer = setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [chatHistory, sseProgress]);
 
   return (
     <div

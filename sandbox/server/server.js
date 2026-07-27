@@ -38,16 +38,16 @@ server.on('upgrade', (req, socket, head) => {
     
     req.agentHost = agentHost; // attach for proxyReqWs to use
 
-    // Rewrite URL to remove /api/agent-ws
-    req.url = req.url.replace('/api/agent-ws', '');
-
     socket.on('error', (err) => {
       console.error("Client socket error:", err.message);
     });
 
     wsProxy.ws(req, socket, head, {
       target: targetUrl,
-      changeOrigin: true
+      changeOrigin: true,
+      headers: {
+        host: agentHost
+      }
     });
   } else {
     socket.destroy();

@@ -29,8 +29,8 @@ export default function WorkspacePage() {
     <AppLayout
       sidebar={<Sidebar />}
       centerTop={<ChatPanel />}
-      centerBottom={<EditorPanel />}
-      rightTop={<PreviewPanel />}
+      centerBottom={<PreviewPanel />}
+      rightTop={<EditorPanel />}
       rightBottom={<TerminalPanel />}
     />
   );
