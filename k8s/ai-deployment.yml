@@ -31,6 +31,8 @@ spec:
               secretKeyRef:
                 name: ai-secret
                 key: MISTRAL_API_KEY
+          - name: ROUTER_URL
+            value: "http://router-service"
 
         livenessProbe:
           httpGet:
