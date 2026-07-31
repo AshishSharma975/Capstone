@@ -48,10 +48,15 @@ export function useSSE() {
               : 'Task completed successfully.';
           finishAIResponse(summary);
 
+          // Wait 1s for agent to finish writing files before refreshing
+          await new Promise(r => setTimeout(r, 1000));
+
           // Refresh file tree after AI completes
           try {
             const newFiles = await listFiles(sandboxId);
-            useAppStore.getState().setFiles(newFiles);
+            if (newFiles && newFiles.length > 0) {
+              useAppStore.getState().setFiles(newFiles);
+            }
 
             // Also refresh all currently open tabs so editor shows updated content
             const { openTabs, updateTabContent, setTabError } = useAppStore.getState();
@@ -67,8 +72,10 @@ export function useSSE() {
             );
           } catch (err) {
             console.error('Failed to refresh after AI:', err);
+            addToast('Files could not refresh — click 🔄 to refresh manually', 'error');
           }
         },
+
         onError: (err) => {
           addSSEStep({ type: 'error', message: err.message });
           finishAIResponse(`Error: ${err.message}`);

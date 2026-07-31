@@ -44,6 +44,7 @@ async function proxyToAgent(req, res, path) {
     const sandboxId = req.headers['x-sandbox-id'];
     if (!sandboxId) return res.status(400).json({ message: 'Missing x-sandbox-id header' });
 
+    // Route through the ingress on port 80 using the Host header
     const agentUrl = `http://127.0.0.1${path}`;
     const agentHost = `${sandboxId}.agent.localhost`;
 
@@ -70,6 +71,8 @@ async function proxyToAgent(req, res, path) {
         });
     }
 }
+
+
 
 app.get('/api/agent/list-files', (req, res) => proxyToAgent(req, res, '/list-files'));
 app.get('/api/agent/read-files', (req, res) => proxyToAgent(req, res, '/read-files'));
