@@ -50,11 +50,12 @@ Write-Host "Starting all project servers in separate windows..." -ForegroundColo
 
 $projectDir = $PSScriptRoot
 
-# Define the paths and commands
 # NOTE: auth service is REQUIRED — it handles Google OAuth and JWT tokens
 # NOTE: sandbox/router is REQUIRED — it routes agent API calls to Kubernetes pods
+# NOTE: notification service is REQUIRED — it processes emails and login alerts
 $servers = @(
     @{ Name = "auth";            Path = "auth";            Command = "npm run dev" },
+    @{ Name = "notification";    Path = "notification";    Command = "npm run dev" },
     @{ Name = "sandbox/router";  Path = "sandbox\router";  Command = "npm run dev" },
     @{ Name = "sandbox/server";  Path = "sandbox\server";  Command = "npm run dev" },
     @{ Name = "sandbox/agent";   Path = "sandbox\agent";   Command = "npm run dev" },
@@ -86,6 +87,7 @@ if ($skipped.Count -gt 0) {
 Write-Host ""
 Write-Host " Ports:" -ForegroundColor Cyan
 Write-Host "   auth            -> http://localhost:3000" -ForegroundColor White
+Write-Host "   notification    -> http://localhost:4000" -ForegroundColor White
 Write-Host "   sandbox/router  -> http://localhost:3001" -ForegroundColor White
 Write-Host "   sandbox/server  -> http://localhost:5000" -ForegroundColor White
 Write-Host "   sandbox/agent   -> http://localhost:8080 (per sandbox pod)" -ForegroundColor White
