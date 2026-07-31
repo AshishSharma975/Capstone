@@ -1,7 +1,7 @@
 /**
  * FileExplorer.jsx — Left panel file explorer
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { RefreshCw, FolderOpen } from 'lucide-react';
 import FileTree from './FileTree';
 import { FileSkeleton } from '../UI/Skeleton';
@@ -14,14 +14,23 @@ export default function FileExplorer() {
   const files = useAppStore(state => state.files);
   const sandboxId = useAppStore(state => state.sandboxId);
   const { loadFiles, openFile } = useFileExplorer();
-  const [loading, setLoading] = [false, () => {}]; // managed via try/catch in hook
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Wrapped loadFiles with local loading state
+  const handleRefresh = async () => {
+    setIsLoading(true);
+    await loadFiles();
+    setIsLoading(false);
+  };
+
 
   // Load files when sandbox is ready
   useEffect(() => {
     if (sandboxId) {
-      loadFiles();
+      handleRefresh();
     }
-  }, [sandboxId, loadFiles]);
+  }, [sandboxId]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   const fileTree = buildFileTree(files);
   const treeEntries = Object.entries(fileTree);
@@ -39,12 +48,13 @@ export default function FileExplorer() {
           Explorer
         </span>
         <button
-          onClick={loadFiles}
+          onClick={handleRefresh}
+          disabled={isLoading}
           title="Refresh files"
           className="p-1 rounded hover:bg-[var(--bg-elevated)] transition-colors"
           style={{ color: 'var(--text-muted)' }}
         >
-          <RefreshCw size={13} />
+          <RefreshCw size={13} style={{ animation: isLoading ? 'spin 1s linear infinite' : 'none' }} />
         </button>
       </div>
 
@@ -56,7 +66,7 @@ export default function FileExplorer() {
             title="No sandbox"
             description="Start a sandbox to browse files"
           />
-        ) : files.length === 0 ? (
+        ) : isLoading || files.length === 0 ? (
           <FileSkeleton />
         ) : (
           treeEntries

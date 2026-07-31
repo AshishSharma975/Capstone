@@ -4,7 +4,7 @@
 import { useCallback } from 'react';
 import useAppStore from '../store/useAppStore';
 import { invokeAI } from '../services/aiApi';
-import { listFiles } from '../services/agentApi';
+import { listFiles, readFile } from '../services/agentApi';
 
 export function useSSE() {
   const {
@@ -39,7 +39,7 @@ export function useSSE() {
         onStep: (event) => {
           addSSEStep({ type: 'step', message: event.message || JSON.stringify(event) });
         },
-        onComplete: (result) => {
+        onComplete: async (result) => {
           const summary =
             typeof result === 'string'
               ? result
@@ -48,10 +48,26 @@ export function useSSE() {
               : 'Task completed successfully.';
           finishAIResponse(summary);
 
-          // Force refresh files after AI completes
-          listFiles(sandboxId)
-            .then(files => useAppStore.getState().setFiles(files))
-            .catch(err => console.error("Failed to refresh files:", err));
+          // Refresh file tree after AI completes
+          try {
+            const newFiles = await listFiles(sandboxId);
+            useAppStore.getState().setFiles(newFiles);
+
+            // Also refresh all currently open tabs so editor shows updated content
+            const { openTabs, updateTabContent, setTabError } = useAppStore.getState();
+            await Promise.allSettled(
+              openTabs.map(async (tab) => {
+                try {
+                  const content = await readFile(sandboxId, tab.path);
+                  updateTabContent(tab.path, content);
+                } catch (err) {
+                  setTabError(tab.path, `Could not refresh: ${err.message}`);
+                }
+              })
+            );
+          } catch (err) {
+            console.error('Failed to refresh after AI:', err);
+          }
         },
         onError: (err) => {
           addSSEStep({ type: 'error', message: err.message });
