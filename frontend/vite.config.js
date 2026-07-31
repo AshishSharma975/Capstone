@@ -14,6 +14,19 @@ export default defineConfig({
         target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
+        cookieDomainRewrite: "localhost",   // rewrite cookie domain so browser stores it
+        configure: (proxy) => {
+          // Forward set-cookie headers from auth service to the browser
+          proxy.on('proxyRes', (proxyRes) => {
+            const setCookie = proxyRes.headers['set-cookie'];
+            if (setCookie) {
+              // Strip 'Domain' attribute so cookie is valid for localhost
+              proxyRes.headers['set-cookie'] = setCookie.map(c =>
+                c.replace(/;\s*Domain=[^;]*/gi, '')
+              );
+            }
+          });
+        },
       },
       "/api/ai":{
         target: "http://localhost:6000",

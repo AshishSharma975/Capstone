@@ -1,15 +1,14 @@
 /**
- * LandingPage.jsx — Start screen with sandbox creation
+ * LandingPage.jsx — Start screen with auth check + sandbox creation
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Code2, Terminal, Globe, Sparkles, ArrowRight } from 'lucide-react';
+import { Zap, Code2, Terminal, Globe, Sparkles, ArrowRight, LogIn, LogOut, User } from 'lucide-react';
 import useAppStore from '../store/useAppStore';
 import { startSandbox, getProjects } from '../services/sandboxApi';
 import Spinner from '../components/UI/Spinner';
 import ToastContainer from '../components/UI/Toast';
-import { useEffect } from 'react';
 
 const FEATURES = [
   { icon: Code2, label: 'AI Code Generation', desc: 'Describe and build' },
@@ -24,14 +23,52 @@ export default function LandingPage() {
   const [loadingStep, setLoadingStep] = useState('');
   const [projects, setProjects] = useState([]);
 
+  // Auth state
+  const [authChecking, setAuthChecking] = useState(true);
+  const [user, setUser] = useState(null); // null = not logged in
+
+  // ── Check auth on mount ──────────────────────────────────────
   useEffect(() => {
-    // Fetch user projects on mount
-    getProjects().then(data => {
-      setProjects(data);
-    }).catch(err => console.error("Failed to fetch projects", err));
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = await res.json();
+        if (data.loggedIn) {
+          setUser(data.user);
+          // Load projects only after confirmed logged in
+          getProjects()
+            .then(setProjects)
+            .catch(() => {});
+        }
+      } catch {
+        // Auth service not running or network error — treat as logged out
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+    checkAuth();
   }, []);
 
+  // ── Login redirect ───────────────────────────────────────────
+  const handleLogin = () => {
+    window.location.href = '/api/auth/google';
+  };
+
+  // ── Logout ───────────────────────────────────────────────────
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {}
+    setUser(null);
+    setProjects([]);
+  };
+
+  // ── Start sandbox ────────────────────────────────────────────
   const handleStart = async (projectId = null) => {
+    if (!user) {
+      addToast('Please login first!', 'error');
+      return;
+    }
     setIsLoading(true);
     setLoadingStep('Initialising sandbox environment…');
 
@@ -47,23 +84,15 @@ export default function LandingPage() {
       for (let i = 0; i < 30; i++) {
         try {
           const res = await fetch(`http://${data.sandboxId}.agent.localhost/`);
-          if (res.ok) {
-            isReady = true;
-            break;
-          }
-        } catch (e) {
-          // Ignore fetch errors while waiting
-        }
+          if (res.ok) { isReady = true; break; }
+        } catch {}
         await new Promise((r) => setTimeout(r, 1000));
       }
 
-      if (!isReady) {
-        throw new Error("Sandbox failed to start in time");
-      }
+      if (!isReady) throw new Error('Sandbox failed to start in time');
 
       setLoadingStep('Ready! Opening workspace…');
       await new Promise((r) => setTimeout(r, 600));
-
       navigate('/workspace');
     } catch (err) {
       addToast(`Failed to start sandbox: ${err.message}`, 'error');
@@ -72,6 +101,7 @@ export default function LandingPage() {
     }
   };
 
+  // ── Render ───────────────────────────────────────────────────
   return (
     <div
       className="gradient-bg"
@@ -104,10 +134,7 @@ export default function LandingPage() {
         </div>
 
         {/* Main card */}
-        <div
-          className="glass rounded-2xl p-8 text-center"
-          style={{ boxShadow: 'var(--shadow-lg)' }}
-        >
+        <div className="glass rounded-2xl p-8 text-center" style={{ boxShadow: 'var(--shadow-lg)' }}>
           {/* Logo */}
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
@@ -157,54 +184,101 @@ export default function LandingPage() {
             ))}
           </motion.div>
 
-          {/* CTA button */}
-          <motion.button
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            onClick={() => handleStart()}
-            disabled={isLoading}
-            whileHover={!isLoading ? { scale: 1.02 } : {}}
-            whileTap={!isLoading ? { scale: 0.98 } : {}}
-            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl font-semibold text-white transition-all"
-            style={{
-              background: isLoading
-                ? 'var(--bg-elevated)'
-                : 'linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%)',
-              boxShadow: isLoading ? 'none' : 'var(--shadow-glow)',
-              fontSize: '15px',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              border: 'none',
-              color: '#fff',
-            }}
-          >
-            <AnimatePresence mode="wait">
-              {isLoading ? (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-center gap-2"
+          {/* ── Auth area ── */}
+          <AnimatePresence mode="wait">
+            {authChecking ? (
+              /* Checking auth state */
+              <motion.div key="checking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="flex items-center justify-center gap-2"
+                style={{ color: 'var(--text-muted)', fontSize: '14px', padding: '12px 0' }}>
+                <Spinner size={16} /> Checking login status…
+              </motion.div>
+
+            ) : !user ? (
+              /* NOT logged in — show Google login button */
+              <motion.div key="login" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <button
+                  onClick={handleLogin}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl font-semibold transition-all"
+                  style={{
+                    background: 'linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%)',
+                    boxShadow: 'var(--shadow-glow)',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    border: 'none',
+                    color: '#fff',
+                  }}
                 >
-                  <Spinner size={18} style={{ color: 'var(--accent)' }} />
-                  <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{loadingStep}</span>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="idle"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-center gap-2"
+                  <LogIn size={18} />
+                  Login with Google
+                </button>
+                <p style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                  Sign in to create and manage your sandboxes
+                </p>
+              </motion.div>
+
+            ) : (
+              /* Logged in — show user info + Start Sandbox */
+              <motion.div key="loggedin" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                {/* User info bar */}
+                <div
+                  className="flex items-center justify-between mb-4 px-3 py-2 rounded-xl"
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
                 >
-                  <Zap size={16} />
-                  Start Sandbox
-                  <ArrowRight size={16} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
+                  <div className="flex items-center gap-2">
+                    {user.avatar
+                      ? <img src={user.avatar} alt="avatar" style={{ width: 28, height: 28, borderRadius: '50%' }} />
+                      : <User size={18} style={{ color: 'var(--accent)' }} />
+                    }
+                    <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>
+                      {user.name || user.email}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    title="Logout"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4, fontSize: '12px' }}
+                  >
+                    <LogOut size={14} /> Logout
+                  </button>
+                </div>
+
+                {/* Start Sandbox button */}
+                <motion.button
+                  onClick={() => handleStart()}
+                  disabled={isLoading}
+                  whileHover={!isLoading ? { scale: 1.02 } : {}}
+                  whileTap={!isLoading ? { scale: 0.98 } : {}}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl font-semibold text-white transition-all"
+                  style={{
+                    background: isLoading ? 'var(--bg-elevated)' : 'linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%)',
+                    boxShadow: isLoading ? 'none' : 'var(--shadow-glow)',
+                    fontSize: '15px',
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    border: 'none',
+                    color: '#fff',
+                  }}
+                >
+                  <AnimatePresence mode="wait">
+                    {isLoading ? (
+                      <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="flex items-center gap-2">
+                        <Spinner size={18} style={{ color: 'var(--accent)' }} />
+                        <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{loadingStep}</span>
+                      </motion.div>
+                    ) : (
+                      <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="flex items-center gap-2">
+                        <Zap size={16} />
+                        Start Sandbox
+                        <ArrowRight size={16} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Footer note */}
@@ -216,9 +290,9 @@ export default function LandingPage() {
         >
           Sandbox spins up in seconds. No setup required.
         </motion.p>
-        
-        {/* My Projects Section */}
-        {projects.length > 0 && (
+
+        {/* My Projects Section — only shown when logged in */}
+        {user && projects.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

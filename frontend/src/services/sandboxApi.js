@@ -3,14 +3,18 @@
  */
 import axios from 'axios';
 
-const BASE_URL = '';
+// Pre-configured axios instance — withCredentials ensures auth cookies
+// are automatically included in every request to the backend.
+const api = axios.create({
+  withCredentials: true,
+});
 
 /**
  * Start a new sandbox environment.
  * @returns {Promise<{ sandboxId: string, previewUrl: string, message: string }>}
  */
 export async function startSandbox(projectId = null) {
-  const response = await axios.post(`${BASE_URL}/api/sandbox/start`, { projectId });
+  const response = await api.post('/api/sandbox/start', { projectId });
   return response.data;
 }
 
@@ -18,6 +22,7 @@ export async function startSandbox(projectId = null) {
  * Get user's projects.
  */
 export async function getProjects() {
-  const response = await axios.get(`${BASE_URL}/api/sandbox/projects`);
+  const response = await api.get('/api/sandbox/projects');
   return response.data.projects || [];
 }
+

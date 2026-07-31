@@ -1,5 +1,5 @@
 # Script to automatically start Docker Desktop (if not running) and start all project servers
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 Write-Host "Checking if Docker Desktop is running..." -ForegroundColor Cyan
 
@@ -45,26 +45,49 @@ try {
     }
 }
 
+Write-Host ""
 Write-Host "Starting all project servers in separate windows..." -ForegroundColor Cyan
 
 $projectDir = $PSScriptRoot
 
 # Define the paths and commands
+# NOTE: auth service is REQUIRED — it handles Google OAuth and JWT tokens
 $servers = @(
-    @{ Name = "sandbox/server"; Path = "sandbox\server"; Command = "npm run dev" },
-    @{ Name = "sandbox/agent"; Path = "sandbox\agent"; Command = "npm run dev" },
+    @{ Name = "auth";            Path = "auth";            Command = "npm run dev" },
+    @{ Name = "sandbox/server";  Path = "sandbox\server";  Command = "npm run dev" },
+    @{ Name = "sandbox/agent";   Path = "sandbox\agent";   Command = "npm run dev" },
     @{ Name = "ai-orchestration"; Path = "ai-orchestration"; Command = "npm run dev" },
-    @{ Name = "frontend"; Path = "frontend"; Command = "npm run dev" }
+    @{ Name = "frontend";        Path = "frontend";         Command = "npm run dev" }
 )
+
+$started = @()
+$skipped = @()
 
 foreach ($server in $servers) {
     $fullPath = Join-Path $projectDir $server.Path
     if (Test-Path $fullPath) {
-        Write-Host "Starting $($server.Name)..." -ForegroundColor Green
+        Write-Host "  Starting $($server.Name)..." -ForegroundColor Green
         Start-Process "powershell.exe" -ArgumentList "-NoExit", "-Command", "cd '$fullPath'; $($server.Command)"
+        $started += $server.Name
     } else {
-        Write-Host "Warning: Path $fullPath does not exist!" -ForegroundColor Yellow
+        Write-Host "  Warning: Path not found — $fullPath" -ForegroundColor Yellow
+        $skipped += $server.Name
     }
 }
 
-Write-Host "All servers have been launched!" -ForegroundColor Green
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host " Services started: $($started -join ', ')" -ForegroundColor Green
+if ($skipped.Count -gt 0) {
+    Write-Host " Skipped (path not found): $($skipped -join ', ')" -ForegroundColor Yellow
+}
+Write-Host ""
+Write-Host " Ports:" -ForegroundColor Cyan
+Write-Host "   auth            -> http://localhost:3000" -ForegroundColor White
+Write-Host "   sandbox/server  -> http://localhost:5000" -ForegroundColor White
+Write-Host "   sandbox/agent   -> http://localhost:8080 (per sandbox pod)" -ForegroundColor White
+Write-Host "   ai-orchestration-> http://localhost:6000" -ForegroundColor White
+Write-Host "   frontend        -> http://localhost:5173" -ForegroundColor White
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host " Open: http://localhost:5173" -ForegroundColor Green

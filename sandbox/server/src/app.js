@@ -1,9 +1,25 @@
 import express from "express"
 import morgan from "morgan"
+import cors from "cors"
 import axios from "axios"
 import cookieParser from "cookie-parser";
 import sandboxRouter from './routes/sandbox.routes.js'
 const app = express();
+
+// CORS — allow all localhost origins with credentials (cookies)
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests from any localhost port (frontend, tools, etc.)
+        if (!origin || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,            // <-- allows cookies to be sent
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-sandbox-id'],
+}));
 
 app.use(morgan('dev'));
 app.use(express.json({ limit: '50mb' }));

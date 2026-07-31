@@ -5,13 +5,19 @@
  */
 import axios from 'axios';
 
+// Pre-configured axios instance — withCredentials ensures auth cookies
+// are automatically included in every request.
+const api = axios.create({
+  withCredentials: true,
+});
+
 /**
  * List all files in the sandbox.
  * @param {string} sandboxId
  * @returns {Promise<string[]>} flat list of file paths
  */
 export async function listFiles(sandboxId) {
-  const response = await axios.get('/api/agent/list-files', {
+  const response = await api.get('/api/agent/list-files', {
     headers: { 'x-sandbox-id': sandboxId },
   });
   return response.data.files;
@@ -24,7 +30,7 @@ export async function listFiles(sandboxId) {
  * @returns {Promise<string>} file content
  */
 export async function readFile(sandboxId, filePath) {
-  const response = await axios.get('/api/agent/read-files', {
+  const response = await api.get('/api/agent/read-files', {
     headers: { 'x-sandbox-id': sandboxId },
     params: { files: filePath },
   });
@@ -51,7 +57,8 @@ export async function readFile(sandboxId, filePath) {
  * @returns {Promise<void>}
  */
 export async function updateFiles(sandboxId, updates) {
-  await axios.patch('/api/agent/update-files', { updates }, {
+  await api.patch('/api/agent/update-files', { updates }, {
     headers: { 'x-sandbox-id': sandboxId },
   });
 }
+

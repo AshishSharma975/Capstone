@@ -37,6 +37,7 @@ export async function invokeAI({
       },
       body: JSON.stringify({ message, projectId }),
       signal: abortController?.signal,
+      credentials: 'include',   // <-- send auth cookies with SSE stream
     });
 
     if (!response.ok) {
