@@ -15,7 +15,7 @@ export async function createSandboxKey(sandboxId) {
         status:'active',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-    }),"EX",120)
+    }),"EX",60 * 20)
 }
 
 subscriber.config('SET','notify-keyspace-events','Ex').catch(err => {
