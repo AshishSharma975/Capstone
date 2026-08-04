@@ -8,7 +8,9 @@ build:
       docker:
         dockerfile: dockerfile
 
-
+  platform:
+    - linux/amd64 # your ec2 instance
+    
     - image: notification
       context: notification
       docker:
