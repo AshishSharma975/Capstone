@@ -1,0 +1,62 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+
+build:
+  artifacts:
+    - image: auth
+      context: auth
+      docker:
+        dockerfile: dockerfile
+
+
+    - image: notification
+      context: notification
+      docker:
+        dockerfile: dockerfile
+
+
+    - image: ai-orchestration
+      context: ai-orchestration
+      docker:
+        dockerfile: dockerfile
+
+
+    - image: agent
+      context: sandbox/agent
+      docker:
+        dockerfile: dockerfile
+
+    - image: router
+      context: sandbox/router
+      docker:
+        dockerfile: dockerfile
+
+    - image: sync-agent
+      context: sandbox/sync-agent
+      docker:
+        dockerfile: Dockerfile
+
+    - image: main-sandbox
+      context: sandbox/server
+      docker:
+        dockerfile: dockerfile
+
+    - image: template
+      context: sandbox/template
+      docker:
+        dockerfile: dockerfile
+
+manifests:
+  rawYaml:
+    - k8s/secrets.yml
+    - k8s/auth-deployment.yml
+    - k8s/auth-service.yml
+    - k8s/ai-deployment.yml
+    - k8s/ai-service.yml
+    - k8s/ingress.yml
+    - k8s/router-deployment.yml
+    - k8s/router-service.yml
+    - k8s/sandbox-deployment.yml
+    - k8s/sandbox-service.yml
+    - k8s/notification.deployment.yml
+    - k8s/notification-service.yml
