@@ -11,39 +11,39 @@ build:
   platform:
     - linux/amd64 # your ec2 instance
     
-    - image: notification
+    - image: notification  # <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/notification:dev
       context: notification
       docker:
         dockerfile: dockerfile
 
 
-    - image: ai-orchestration
+    - image: ai-orchestration # <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/ai-orchestration:dev
       context: ai-orchestration
       docker:
         dockerfile: dockerfile
 
 
-    - image: agent
+    - image: agent # <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/agent:dev
       context: sandbox/agent
       docker:
         dockerfile: dockerfile
 
-    - image: router
+    - image: router # <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/router:dev
       context: sandbox/router
       docker:
         dockerfile: dockerfile
 
-    - image: sync-agent
+    - image: sync-agent # <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/sync-agent:dev
       context: sandbox/sync-agent
       docker:
         dockerfile: Dockerfile
 
-    - image: main-sandbox
+    - image: main-sandbox # <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/main-sandbox:dev
       context: sandbox/server
       docker:
         dockerfile: dockerfile
 
-    - image: template
+    - image: template # <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/template:dev
       context: sandbox/template
       docker:
         dockerfile: dockerfile
