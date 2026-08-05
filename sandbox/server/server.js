@@ -34,8 +34,9 @@ server.on('upgrade', (req, socket, head) => {
       return socket.destroy();
     }
 
+    const routerHost = process.env.KUBERNETES_SERVICE_HOST ? 'router-service' : '127.0.0.1:3001';
     const agentHost = `${sandboxId}.agent.localhost`;
-    const targetUrl = `http://127.0.0.1`;
+    const targetUrl = `http://${routerHost}`;
     
     req.agentHost = agentHost; // attach for proxyReqWs to use
 

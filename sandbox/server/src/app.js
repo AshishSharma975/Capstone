@@ -44,8 +44,9 @@ async function proxyToAgent(req, res, path) {
     const sandboxId = req.headers['x-sandbox-id'];
     if (!sandboxId) return res.status(400).json({ message: 'Missing x-sandbox-id header' });
 
-    // Route through the ingress on port 80 using the Host header
-    const agentUrl = `http://127.0.0.1${path}`;
+    // Route through the proxy router
+    const routerHost = process.env.KUBERNETES_SERVICE_HOST ? 'router-service' : '127.0.0.1:3001';
+    const agentUrl = `http://${routerHost}${path}`;
     const agentHost = `${sandboxId}.agent.localhost`;
 
     try {
