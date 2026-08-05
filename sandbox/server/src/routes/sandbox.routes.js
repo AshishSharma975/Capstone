@@ -138,5 +138,20 @@ router.get("/sync/download/:projectId", async (req, res) => {
     }
 });
 
+router.delete("/project/:id", authMiddleware, async (req, res) => {
+    try {
+        const projectId = req.params.id;
+        const existingProject = await project.findOne({ _id: projectId, user: req.user.id });
+        if (!existingProject) {
+            return res.status(404).json({ message: "Project not found or not authorized" });
+        }
+        await project.deleteOne({ _id: projectId });
+        await ProjectFile.deleteMany({ projectId });
+        return res.status(200).json({ message: "Project deleted successfully" });
+    } catch (error) {
+        console.error("Delete project error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 export default router;

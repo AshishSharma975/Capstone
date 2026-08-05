@@ -4,9 +4,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Code2, Terminal, Globe, Sparkles, ArrowRight, LogIn, LogOut, User } from 'lucide-react';
+import { Zap, Code2, Terminal, Globe, Sparkles, ArrowRight, LogIn, LogOut, User, Trash2 } from 'lucide-react';
 import useAppStore from '../store/useAppStore';
-import { startSandbox, getProjects } from '../services/sandboxApi';
+import { startSandbox, getProjects, deleteProject } from '../services/sandboxApi';
 import Spinner from '../components/UI/Spinner';
 import ToastContainer from '../components/UI/Toast';
 
@@ -69,7 +69,10 @@ export default function LandingPage() {
       let isReady = false;
       for (let i = 0; i < 30; i++) {
         try {
-          const res = await fetch(`http://${data.sandboxId}.agent.localhost/`);
+          const res = await fetch('/api/agent/list-files', {
+            headers: { 'x-sandbox-id': data.sandboxId },
+            credentials: 'include',
+          });
           if (res.ok) { isReady = true; break; }
         } catch {}
         await new Promise((r) => setTimeout(r, 1000));
@@ -84,6 +87,18 @@ export default function LandingPage() {
       addToast(`Failed to start sandbox: ${err.message}`, 'error');
       setIsLoading(false);
       setLoadingStep('');
+    }
+  };
+
+  // ── Delete project ───────────────────────────────────────────
+  const handleDeleteProject = async (projectId) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    try {
+      await deleteProject(projectId);
+      addToast('Project deleted successfully!', 'success');
+      setProjects((prev) => prev.filter((p) => p._id !== projectId));
+    } catch (err) {
+      addToast(`Failed to delete project: ${err.message}`, 'error');
     }
   };
 
@@ -299,10 +314,23 @@ export default function LandingPage() {
                   <div>
                     <div style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{proj.title}</div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-                      {new Date(proj.createdAt).toLocaleDateString()}
+                      {proj.createdAt ? new Date(proj.createdAt).toLocaleDateString() : 'No date available'}
                     </div>
                   </div>
-                  <ArrowRight size={16} style={{ color: 'var(--accent)' }} />
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteProject(proj._id);
+                      }}
+                      className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 hover:text-red-300 transition-colors"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Delete Project"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <ArrowRight size={16} style={{ color: 'var(--accent)' }} />
+                  </div>
                 </div>
               ))}
             </div>

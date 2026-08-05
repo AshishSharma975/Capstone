@@ -14,6 +14,7 @@ export function useFileExplorer() {
     setTabLoading,
     setTabError,
     addToast,
+    setSandbox,
   } = useAppStore();
 
   /** Fetch the full file list from the agent */
@@ -24,8 +25,12 @@ export function useFileExplorer() {
       setFiles(files);
     } catch (err) {
       addToast(`Failed to load files: ${err.message}`, 'error');
+      const status = err.response?.status;
+      if (status === 404 || status === 502 || status === 504 || status === 400) {
+        setSandbox(null, null);
+      }
     }
-  }, [sandboxId, setFiles, addToast]);
+  }, [sandboxId, setFiles, addToast, setSandbox]);
 
   /** Open a file in a tab and load its content */
   const openFile = useCallback(

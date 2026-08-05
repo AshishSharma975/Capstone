@@ -26,3 +26,11 @@ export async function getProjects() {
   return response.data.projects || [];
 }
 
+/**
+ * Delete a project.
+ */
+export async function deleteProject(projectId) {
+  const response = await api.delete(`/api/sandbox/project/${projectId}`);
+  return response.data;
+}
+

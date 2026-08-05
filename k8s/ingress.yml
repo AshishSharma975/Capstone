@@ -22,6 +22,20 @@ spec:
             name: main-sandbox-service
             port:
               number: 80
+      - path: /api/agent
+        pathType: Prefix
+        backend:
+          service:
+            name: main-sandbox-service
+            port:
+              number: 80
+      - path: /api/agent-ws
+        pathType: Prefix
+        backend:
+          service:
+            name: main-sandbox-service
+            port:
+              number: 80
       - path: /api/auth
         pathType: Prefix
         backend:
