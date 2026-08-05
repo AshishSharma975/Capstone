@@ -26,7 +26,7 @@ export function useFileExplorer() {
     } catch (err) {
       addToast(`Failed to load files: ${err.message}`, 'error');
       const status = err.response?.status;
-      if (status === 404 || status === 502 || status === 504 || status === 400) {
+      if (status === 404) {
         setSandbox(null, null);
       }
     }
