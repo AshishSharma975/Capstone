@@ -11,7 +11,7 @@ export default defineConfig({
     },
     proxy:{
       "/api/auth":{
-        target: "http://localhost:3000",
+        target: "http://localhost",
         changeOrigin: true,
         secure: false,
         cookieDomainRewrite: "localhost",   // rewrite cookie domain so browser stores it
@@ -29,22 +29,22 @@ export default defineConfig({
         },
       },
       "/api/ai":{
-        target: "http://localhost:6000",
+        target: "http://localhost",
         changeOrigin: true,
         secure: false,
       },
       "/api/agent-ws": {
-        target: "http://localhost:5000",
+        target: "http://localhost",
         changeOrigin: true,
         ws: true,
       },
       "/api/agent":{
-        target: "http://localhost:5000",
+        target: "http://localhost",
         changeOrigin: true,
         secure: false,
       },
       "/api":{
-        target: "http://localhost:5000",
+        target: "http://localhost",
         changeOrigin: true,
         secure: false,
       },

@@ -18,36 +18,21 @@ const FEATURES = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { setSandbox, addToast } = useAppStore();
+  const { user, setUser, authChecking, setSandbox, addToast } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
   const [projects, setProjects] = useState([]);
 
-  // Auth state
-  const [authChecking, setAuthChecking] = useState(true);
-  const [user, setUser] = useState(null); // null = not logged in
-
-  // ── Check auth on mount ──────────────────────────────────────
+  // ── Load projects on login ──────────────────────────────────
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' });
-        const data = await res.json();
-        if (data.loggedIn) {
-          setUser(data.user);
-          // Load projects only after confirmed logged in
-          getProjects()
-            .then(setProjects)
-            .catch(() => {});
-        }
-      } catch {
-        // Auth service not running or network error — treat as logged out
-      } finally {
-        setAuthChecking(false);
-      }
-    };
-    checkAuth();
-  }, []);
+    if (user) {
+      getProjects()
+        .then(setProjects)
+        .catch(() => {});
+    } else {
+      setProjects([]);
+    }
+  }, [user]);
 
   // ── Login redirect ───────────────────────────────────────────
   const handleLogin = () => {
@@ -60,6 +45,7 @@ export default function LandingPage() {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch {}
     setUser(null);
+    setSandbox(null, null);
     setProjects([]);
   };
 

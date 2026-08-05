@@ -6,9 +6,21 @@ import { create } from 'zustand';
 
 const useAppStore = create((set, get) => ({
   // ─── Sandbox ─────────────────────────────────────────────
-  sandboxId: null,
-  previewUrl: null,
-  setSandbox: (sandboxId, previewUrl) => set({ sandboxId, previewUrl }),
+  sandboxId: localStorage.getItem('sandboxId') || null,
+  previewUrl: localStorage.getItem('previewUrl') || null,
+  setSandbox: (sandboxId, previewUrl) => {
+    if (sandboxId) {
+      localStorage.setItem('sandboxId', sandboxId);
+    } else {
+      localStorage.removeItem('sandboxId');
+    }
+    if (previewUrl) {
+      localStorage.setItem('previewUrl', previewUrl);
+    } else {
+      localStorage.removeItem('previewUrl');
+    }
+    set({ sandboxId, previewUrl });
+  },
 
   // ─── File Explorer ────────────────────────────────────────
   files: [],          // flat list of file paths
@@ -130,6 +142,32 @@ const useAppStore = create((set, get) => ({
   },
   removeToast: (id) => {
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+  },
+
+  // ─── Authentication ───────────────────────────────────────
+  user: null,
+  authChecking: true,
+  setUser: (user) => set({ user }),
+  setAuthChecking: (authChecking) => set({ authChecking }),
+  checkAuth: async () => {
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const data = await res.json();
+      if (data.loggedIn) {
+        set({ user: data.user });
+        return data.user;
+      } else {
+        set({ user: null });
+        get().setSandbox(null, null);
+        return null;
+      }
+    } catch {
+      set({ user: null });
+      get().setSandbox(null, null);
+      return null;
+    } finally {
+      set({ authChecking: false });
+    }
   },
 
   // ─── UI ───────────────────────────────────────────────────
