@@ -1,6 +1,10 @@
 import { k8sCoreV1Api } from "./config.js";
 
 export async function createPod(sandboxId, projectId) {
+    const syncServerUrl = process.env.KUBERNETES_SERVICE_HOST
+        ? "http://main-sandbox-service"
+        : "http://host.docker.internal:5000";
+
     const podManifest = {
         metadata: {
             name: `sandbox-pod-${sandboxId}`,
@@ -66,7 +70,7 @@ export async function createPod(sandboxId, projectId) {
 
                     env: [
                         { name: "PROJECT_ID", value: projectId || "" },
-                        { name: "SYNC_SERVER_URL", value: "http://host.docker.internal:5000" } 
+                        { name: "SYNC_SERVER_URL", value: syncServerUrl } 
                     ],
 
                     volumeMounts: [
@@ -95,7 +99,7 @@ export async function createPod(sandboxId, projectId) {
 
                     env: [
                         { name: "PROJECT_ID", value: projectId || "" },
-                        { name: "SYNC_SERVER_URL", value: "http://host.docker.internal:5000" } 
+                        { name: "SYNC_SERVER_URL", value: syncServerUrl } 
                     ],
 
                     volumeMounts: [

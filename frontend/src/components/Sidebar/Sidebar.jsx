@@ -1,13 +1,11 @@
-/**
- * Sidebar.jsx — Collapsible left sidebar with file explorer
- */
-import { PanelLeft } from 'lucide-react';
+import { PanelLeft, Home } from 'lucide-react';
 import FileExplorer from '../Explorer/FileExplorer';
 import useAppStore from '../../store/useAppStore';
 
 export default function Sidebar() {
   const sidebarCollapsed = useAppStore(state => state.sidebarCollapsed);
   const toggleSidebar = useAppStore(state => state.toggleSidebar);
+  const setSandbox = useAppStore(state => state.setSandbox);
 
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--bg-surface)' }}>
@@ -47,6 +45,28 @@ export default function Sidebar() {
       <div className="flex-1 overflow-hidden">
         <FileExplorer />
       </div>
+
+      {/* Sidebar bottom bar */}
+      {!sidebarCollapsed && (
+        <div
+          className="flex items-center gap-2 p-2 shrink-0"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          <button
+            onClick={() => {
+              if (window.confirm("Return to projects page?")) {
+                setSandbox(null, null);
+              }
+            }}
+            title="Projects Page"
+            className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium w-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
+            style={{ border: '1px solid var(--border)', cursor: 'pointer', background: 'none' }}
+          >
+            <Home size={12} />
+            Go to Projects
+          </button>
+        </div>
+      )}
     </div>
   );
 }
