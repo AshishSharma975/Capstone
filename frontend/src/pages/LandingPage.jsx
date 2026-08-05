@@ -587,156 +587,181 @@ export default function LandingPage() {
           borderBottom: '1px solid var(--border)',
           background: 'var(--bg-surface)',
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '40px' }}>
-            {STATS.map(({ value, label }, i) => (
-              <motion.div
-                key={label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--accent)', marginBottom: '6px' }}>{value}</div>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '40px' }}
+          >
+            {STATS.map(({ value, label }) => (
+              <motion.div key={label} variants={staggerItem}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, ease: 'backOut' }}
+                  style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--accent)', marginBottom: '6px' }}
+                >{value}</motion.div>
                 <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{label}</div>
               </motion.div>
             ))}
-          </div>
-        </section>
-
-        {/* ── AI DEMO ────────────────────────────────────── */}
-        <section id="demo" style={{ padding: '100px 72px', borderBottom: '1px solid var(--border)' }}>
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '16px' }}>
-              Live Demo
-            </div>
-            <h2 style={{ fontSize: '44px', fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--text-primary)', marginBottom: '16px', maxWidth: '520px', lineHeight: 1.1 }}>
-              Watch the AI work in real time
-            </h2>
-            <p style={{ fontSize: '15px', color: 'var(--text-secondary)', maxWidth: '440px', lineHeight: 1.7, marginBottom: '56px' }}>
-              Type a prompt, and watch the agent create files, install packages, and serve your app — all inside an isolated container.
-            </p>
-
-            {/* Chat demo window */}
-            <div style={{
-              background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '16px',
-              overflow: 'hidden', maxWidth: '580px', boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
-            }}>
-              {/* Top bar */}
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '6px', padding: '12px 16px',
-                background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)',
-              }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ff5f57' }} />
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#febc2e' }} />
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#28c840' }} />
-                <span style={{ marginLeft: '10px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                  AI Agent · workspace
-                </span>
-              </div>
-              {/* Messages */}
-              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px', minHeight: '200px' }}>
-                {CODE_DEMO.slice(0, demoStep).map((msg, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                    style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                    {msg.type === 'user' ? (
-                      <>
-                        <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#0f0e0d', fontWeight: 700, flexShrink: 0, marginTop: '1px' }}>U</div>
-                        <div style={{ background: 'var(--bg-elevated)', borderRadius: '10px', padding: '8px 12px', fontSize: '13px', color: 'var(--text-primary)' }}>{msg.text}</div>
-                      </>
-                    ) : msg.type === 'success' ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'rgba(107,191,142,0.08)', borderRadius: '8px', border: '1px solid rgba(107,191,142,0.2)', width: '100%' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success)' }} />
-                        <span style={{ fontSize: '12px', color: 'var(--success)' }}>{msg.text}</span>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
-                        <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'var(--accent-subtle)', border: '1px solid rgba(201,169,110,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <Zap size={11} style={{ color: 'var(--accent)' }} />
-                        </div>
-                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{msg.text}</span>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-                {demoStep < CODE_DEMO.length && (
-                  <span style={{ display: 'inline-block', width: '6px', height: '13px', background: 'var(--accent)', opacity: 0.8, animation: 'pulse-glow 1s infinite' }} />
-                )}
-              </div>
-            </div>
           </motion.div>
         </section>
 
+
+        {/* ── AI DEMO ────────────────────────────────────── */}
+        <section id="demo" style={{ padding: '100px 72px', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+            {/* Left text */}
+            <div>
+              <Reveal delay={0}>
+                <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '16px' }}>Live Demo</div>
+              </Reveal>
+              <Reveal delay={0.08}>
+                <h2 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--text-primary)', marginBottom: '16px', lineHeight: 1.1 }}>
+                  Watch the AI<br />work in real time
+                </h2>
+              </Reveal>
+              <Reveal delay={0.16}>
+                <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '32px' }}>
+                  Type a prompt, and watch the agent create files, install packages, and serve your app — all inside an isolated container.
+                </p>
+              </Reveal>
+              <Reveal delay={0.22}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {['AI reads your prompt and plans the code', 'Creates and writes all files automatically', 'Runs the app and shows you a live preview'].map((s, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--accent-subtle)', border: '1px solid rgba(201,169,110,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '10px', color: 'var(--accent)', fontWeight: 700 }}>{i + 1}</div>
+                      <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Right — chat window */}
+            <Reveal delay={0.12} direction="left">
+              <div style={{
+                background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '16px',
+                overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '12px 16px', background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ff5f57' }} />
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#febc2e' }} />
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#28c840' }} />
+                  <span style={{ marginLeft: '10px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>AI Agent · workspace</span>
+                </div>
+                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px', minHeight: '200px' }}>
+                  {CODE_DEMO.slice(0, demoStep).map((msg, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                      style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                      {msg.type === 'user' ? (
+                        <>
+                          <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#0f0e0d', fontWeight: 700, flexShrink: 0, marginTop: '1px' }}>U</div>
+                          <div style={{ background: 'var(--bg-elevated)', borderRadius: '10px', padding: '8px 12px', fontSize: '13px', color: 'var(--text-primary)' }}>{msg.text}</div>
+                        </>
+                      ) : msg.type === 'success' ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'rgba(107,191,142,0.08)', borderRadius: '8px', border: '1px solid rgba(107,191,142,0.2)', width: '100%' }}>
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success)' }} />
+                          <span style={{ fontSize: '12px', color: 'var(--success)' }}>{msg.text}</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
+                          <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'var(--accent-subtle)', border: '1px solid rgba(201,169,110,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Zap size={11} style={{ color: 'var(--accent)' }} />
+                          </div>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{msg.text}</span>
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                  {demoStep < CODE_DEMO.length && (
+                    <span style={{ display: 'inline-block', width: '6px', height: '13px', background: 'var(--accent)', opacity: 0.8, animation: 'pulse-glow 1s infinite' }} />
+                  )}
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+
         {/* ── FEATURES ───────────────────────────────────── */}
         <section id="features" style={{ padding: '100px 72px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}>
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '16px' }}>
-              Features
-            </div>
+          <Reveal>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '16px' }}>Features</div>
             <h2 style={{ fontSize: '44px', fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--text-primary)', marginBottom: '64px', lineHeight: 1.1 }}>
               Everything you need.<br />Nothing you don't.
             </h2>
+          </Reveal>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px' }}>
-              {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px' }}
+          >
+            {FEATURES.map(({ icon: Icon, title, desc }) => (
+              <motion.div
+                key={title}
+                variants={staggerItem}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                style={{
+                  padding: '28px', border: '1px solid var(--border)',
+                  background: 'var(--bg-base)', cursor: 'default',
+                  transition: 'background 0.25s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.borderColor = 'rgba(201,169,110,0.25)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-base)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+              >
                 <motion.div
-                  key={title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  style={{
-                    padding: '28px 28px', border: '1px solid var(--border)',
-                    background: 'var(--bg-base)',
-                    transition: 'background 0.2s',
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-base)'; }}
+                  whileHover={{ rotate: 8, scale: 1.1 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
+                  style={{ width: '36px', height: '36px', borderRadius: '9px', marginBottom: '16px', background: 'var(--accent-subtle)', border: '1px solid rgba(201,169,110,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <div style={{
-                    width: '36px', height: '36px', borderRadius: '9px', marginBottom: '16px',
-                    background: 'var(--accent-subtle)', border: '1px solid rgba(201,169,110,0.2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Icon size={16} style={{ color: 'var(--accent)' }} />
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>{title}</div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6 }}>{desc}</div>
+                  <Icon size={16} style={{ color: 'var(--accent)' }} />
                 </motion.div>
-              ))}
-            </div>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>{title}</div>
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6 }}>{desc}</div>
+              </motion.div>
+            ))}
           </motion.div>
         </section>
 
         {/* ── HOW IT WORKS ───────────────────────────────── */}
         <section style={{ padding: '100px 72px', borderBottom: '1px solid var(--border)' }}>
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '16px' }}>
-              How it works
-            </div>
-            <h2 style={{ fontSize: '44px', fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--text-primary)', marginBottom: '64px', lineHeight: 1.1 }}>
-              Four steps to your app.
-            </h2>
+          <Reveal>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '16px' }}>How it works</div>
+            <h2 style={{ fontSize: '44px', fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--text-primary)', marginBottom: '64px', lineHeight: 1.1 }}>Four steps to your app.</h2>
+          </Reveal>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '32px' }}>
-              {HOW_IT_WORKS.map(({ step, title, desc }, i) => (
-                <motion.div key={step}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '32px' }}
+          >
+            {HOW_IT_WORKS.map(({ step, title, desc }) => (
+              <motion.div key={step} variants={staggerItem}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}>
-                  <div style={{ fontSize: '48px', fontWeight: 900, letterSpacing: '-2px', color: 'var(--border)', marginBottom: '20px', lineHeight: 1 }}>{step}</div>
-                  <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>{title}</div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6 }}>{desc}</div>
-                </motion.div>
-              ))}
-            </div>
+                  transition={{ duration: 0.5, ease: 'backOut' }}
+                  style={{ fontSize: '52px', fontWeight: 900, letterSpacing: '-2px', color: 'var(--border)', marginBottom: '20px', lineHeight: 1 }}
+                >{step}</motion.div>
+                <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>{title}</div>
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6 }}>{desc}</div>
+              </motion.div>
+            ))}
           </motion.div>
         </section>
 
         {/* ── CTA ────────────────────────────────────────── */}
         <section style={{ padding: '100px 72px' }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <Reveal direction="scale">
             <div style={{
               background: 'var(--bg-surface)', border: '1px solid var(--border)',
               borderRadius: '20px', padding: '64px', textAlign: 'center',
@@ -745,26 +770,32 @@ export default function LandingPage() {
               <div style={{
                 position: 'absolute', top: '-80px', left: '50%', transform: 'translateX(-50%)',
                 width: '400px', height: '300px', borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(201,169,110,0.08), transparent 65%)',
+                background: 'radial-gradient(circle, rgba(201,169,110,0.1), transparent 65%)',
                 filter: 'blur(40px)', pointerEvents: 'none',
               }} />
-              <h2 style={{ fontSize: '48px', fontWeight: 900, letterSpacing: '-2px', color: 'var(--text-primary)', marginBottom: '16px', lineHeight: 1.05 }}>
-                Ready to start building?
-              </h2>
-              <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '32px' }}>
-                Sign in with the panel on the right and launch your first sandbox in seconds.
-              </p>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '5px 14px', borderRadius: '20px',
-                background: 'var(--accent-subtle)', border: '1px solid rgba(201,169,110,0.25)',
-                fontSize: '12px', color: 'var(--accent)',
-              }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', animation: 'pulse-glow 2s infinite' }} />
-                No setup required · Starts in &lt;30s
-              </div>
+              <Reveal delay={0.1}>
+                <h2 style={{ fontSize: '48px', fontWeight: 900, letterSpacing: '-2px', color: 'var(--text-primary)', marginBottom: '16px', lineHeight: 1.05 }}>
+                  Ready to start building?
+                </h2>
+              </Reveal>
+              <Reveal delay={0.18}>
+                <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '32px' }}>
+                  Sign in with the panel on the right and launch your first sandbox in seconds.
+                </p>
+              </Reveal>
+              <Reveal delay={0.24}>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  padding: '5px 14px', borderRadius: '20px',
+                  background: 'var(--accent-subtle)', border: '1px solid rgba(201,169,110,0.25)',
+                  fontSize: '12px', color: 'var(--accent)',
+                }}>
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', animation: 'pulse-glow 2s infinite' }} />
+                  No setup required · Starts in &lt;30s
+                </div>
+              </Reveal>
             </div>
-          </motion.div>
+          </Reveal>
         </section>
 
         {/* Footer */}
