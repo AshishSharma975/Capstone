@@ -1,51 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
-   CSS Custom Properties — VS Code Dark Theme
+   CSS Custom Properties — Warm Minimal Premium Theme
    ============================================================ */
 :root {
-  /* Background layers */
-  --bg-base: #0d0e11;
-  --bg-surface: #13141a;
-  --bg-elevated: #1a1c24;
-  --bg-overlay: #1e2029;
-  --bg-input: #1a1c24;
+  /* Background layers — warm charcoal */
+  --bg-base:     #0f0e0d;
+  --bg-surface:  #141312;
+  --bg-elevated: #1c1a18;
+  --bg-overlay:  #211f1c;
+  --bg-input:    #1c1a18;
 
-  /* Borders */
-  --border: #2a2d3e;
-  --border-focus: #5865f2;
+  /* Borders — subtle warm */
+  --border:       #2a2724;
+  --border-focus: #c9a96e;
 
   /* Text */
-  --text-primary: #e2e4ee;
-  --text-secondary: #8b8fa8;
-  --text-muted: #555870;
-  --text-code: #cdd6f4;
+  --text-primary:   #f0ebe4;
+  --text-secondary: #8f887e;
+  --text-muted:     #524d48;
+  --text-code:      #e8d9c0;
 
-  /* Accent — electric indigo */
-  --accent: #6366f1;
-  --accent-hover: #7c7ff5;
-  --accent-glow: rgba(99, 102, 241, 0.25);
-  --accent-subtle: rgba(99, 102, 241, 0.08);
+  /* Accent — warm amber/gold */
+  --accent:        #c9a96e;
+  --accent-hover:  #d9bc85;
+  --accent-glow:   rgba(201, 169, 110, 0.2);
+  --accent-subtle: rgba(201, 169, 110, 0.07);
 
   /* Semantic */
-  --success: #22d3a0;
-  --warning: #fbbf24;
-  --error: #f87171;
-  --info: #60a5fa;
+  --success: #6bbf8e;
+  --warning: #d4a847;
+  --error:   #c97070;
+  --info:    #7eadc9;
 
   /* Terminal */
-  --terminal-bg: #090a0d;
-  --terminal-text: #cdd6f4;
+  --terminal-bg:   #0a0908;
+  --terminal-text: #e8d9c0;
 
   /* Fonts */
-  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --font-ui:   'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
-  --shadow-glow: 0 0 24px var(--accent-glow);
+  --shadow-sm:   0 1px 4px rgba(0,0,0,0.5);
+  --shadow-md:   0 4px 20px rgba(0,0,0,0.55);
+  --shadow-lg:   0 8px 40px rgba(0,0,0,0.65);
+  --shadow-glow: 0 0 32px rgba(201, 169, 110, 0.15);
 }
 
 /* ============================================================
@@ -57,7 +58,13 @@
   padding: 0;
 }
 
-html, body, #root {
+html {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body, #root {
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -73,15 +80,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Allow scrolling inside specific containers */
+/* ============================================================
+   Scrollbar
+   ============================================================ */
 .scrollable {
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 .scrollable::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
 }
 
 .scrollable::-webkit-scrollbar-track {
@@ -98,14 +107,14 @@ body {
 }
 
 /* ============================================================
-   Tailwind v4 — Custom Utilities via @layer
+   Utilities
    ============================================================ */
 
-/* Glass card effect */
+/* Warm glass card */
 .glass {
-  background: rgba(26, 28, 36, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(28, 26, 24, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
 }
 
@@ -114,11 +123,28 @@ body {
   font-family: var(--font-mono) !important;
 }
 
+/* Noise texture overlay for premium feel */
+.noise-bg {
+  position: relative;
+}
+.noise-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
 /* Animated gradient background */
 .gradient-bg {
-  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
-              radial-gradient(ellipse 60% 50% at 80% 80%, rgba(139, 92, 246, 0.08), transparent),
-              var(--bg-base);
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 10%, rgba(201, 169, 110, 0.06), transparent),
+    radial-gradient(ellipse 50% 40% at 80% 90%, rgba(201, 169, 110, 0.04), transparent),
+    var(--bg-base);
 }
 
 /* Glow ring */
@@ -126,9 +152,9 @@ body {
   box-shadow: 0 0 0 1px var(--accent), var(--shadow-glow);
 }
 
-/* Selection color */
+/* Selection */
 ::selection {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(201, 169, 110, 0.25);
   color: var(--text-primary);
 }
 
@@ -154,8 +180,27 @@ body {
   cursor: row-resize;
 }
 
+/* Thin horizontal rule */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.8; }
+}
+
+
 
